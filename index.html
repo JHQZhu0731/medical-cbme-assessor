@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CBME Assessment Prompt Builder</title>
+<style>
+  :root {
+    --bg: #f4f7fb; --card: #ffffff; --ink: #0f2540; --muted: #5b708a;
+    --brand: #0d6b6b; --brand-2: #12a0a0; --line: #e2e9f2; --chip: #eef6f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(120deg, var(--brand), var(--brand-2));
+    color: #fff; padding: 28px 20px; text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 1.5rem; }
+  header p { margin: 0; opacity: .9; font-size: .95rem; }
+  main { max-width: 900px; margin: -20px auto 40px; padding: 0 16px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px; margin-bottom: 18px; box-shadow: 0 6px 20px rgba(15,37,64,.05);
+  }
+  h2 { font-size: 1rem; margin: 0 0 12px; color: var(--brand); }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: 10px 0 4px; }
+  select, input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 9px; font-size: .95rem; background: #fff;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .chip {
+    padding: 8px 14px; border-radius: 999px; background: var(--chip);
+    border: 1px solid transparent; cursor: pointer; font-size: .85rem;
+  }
+  .chip.active { background: var(--brand); color: #fff; }
+  ul.guides { margin: 8px 0 0; padding-left: 18px; color: var(--ink); font-size: .9rem; }
+  button.primary {
+    background: var(--brand); color: #fff; border: 0; padding: 12px 18px;
+    border-radius: 10px; font-size: .95rem; cursor: pointer; font-weight: 600;
+  }
+  button.ghost {
+    background: #fff; color: var(--brand); border: 1px solid var(--brand);
+    padding: 12px 18px; border-radius: 10px; cursor: pointer; font-weight: 600;
+  }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  pre {
+    background: #0f2540; color: #d7f5f5; padding: 16px; border-radius: 12px;
+    overflow: auto; font-size: .8rem; max-height: 420px;
+  }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 0 30px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🩺 CBME Assessment Prompt Builder</h1>
+  <p>Turn competency-based medical education guidelines into an LLM-ready assessment prompt for GME.</p>
+</header>
+
+<main>
+  <div class="card">
+    <h2>1 · Framework &amp; Domain</h2>
+    <label>Framework</label>
+    <select id="framework"></select>
+    <label>Competency domain</label>
+    <select id="domain"></select>
+    <label>Guidelines fetched for this domain</label>
+    <ul class="guides" id="guides"></ul>
+  </div>
+
+  <div class="card">
+    <h2>2 · Input Type</h2>
+    <label>What are you asking the LLM to assess?</label>
+    <div class="chips" id="inputTypes"></div>
+    <div id="otherWrap" style="display:none">
+      <label>Describe the "other" input</label>
+      <input id="otherInput" placeholder="e.g. OSCE checklist, direct observation notes" />
+    </div>
+    <label>Learner level (optional)</label>
+    <input id="level" placeholder="e.g. PGY-2 Internal Medicine resident" />
+  </div>
+
+  <div class="card">
+    <h2>3 · Generate JSON Prompt</h2>
+    <div class="row">
+      <button class="primary" id="gen">Generate</button>
+      <button class="ghost" id="copy">Copy</button>
+      <button class="ghost" id="download">Download JSON</button>
+    </div>
+    <pre id="out">{ }</pre>
+  </div>
+</main>
+
+<footer>Built for Graduate Medical Education · Guidelines are curated summaries of ACGME &amp; CanMEDS frameworks.</footer>
+
+<script>
+let DATA = null, selectedInput = "transcript";
+
+async function boot() {
+  DATA = await (await fetch("./guidelines.json")).json();
+  const fw = document.getElementById("framework");
+  Object.entries(DATA.frameworks).forEach(([k, v]) =>
+    fw.add(new Option(v.label, k)));
+  DATA.input_types.forEach(t => {
+    const c = document.createElement("div");
+    c.className = "chip" + (t === selectedInput ? " active" : "");
+    c.textContent = t; c.onclick = () => pickInput(t, c);
+    document.getElementById("inputTypes").appendChild(c);
+  });
+  fw.onchange = loadDomains; loadDomains();
+}
+
+function pickInput(t, el) {
+  selectedInput = t;
+  document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("otherWrap").style.display = t === "other" ? "block" : "none";
+}
+
+function loadDomains() {
+  const fwKey = document.getElementById("framework").value;
+  const dom = document.getElementById("domain");
+  dom.innerHTML = "";
+  const domains = DATA.frameworks[fwKey].domains;
+  Object.entries(domains).forEach(([k, v]) => dom.add(new Option(v.name, k)));
+  dom.onchange = showGuides; showGuides();
+}
+
+function showGuides() {
+  const fwKey = document.getElementById("framework").value;
+  const dKey = document.getElementById("domain").value;
+  const g = DATA.frameworks[fwKey].domains[dKey].guidelines;
+  document.getElementById("guides").innerHTML = g.map(x => `<li>${x}</li>`).join("");
+}
+
+function build() {
+  const fwKey = document.getElementById("framework").value;
+  const dKey = document.getElementById("domain").value;
+  const fw = DATA.frameworks[fwKey];
+  const d = fw.domains[dKey];
+  const inputType = selectedInput === "other"
+    ? (document.getElementById("otherInput").value || "other")
+    : selectedInput;
+
+  return {
+    assessment_task: {
+      role: "You are an expert clinical competency assessor in Graduate Medical Education (GME).",
+      framework: fw.label,
+      competency_domain: d.name,
+      setting: "Real clinical setting (workplace-based assessment)",
+      learner_level: document.getElementById("level").value || "unspecified",
+      input: {
+        type: inputType,
+        label: inputType,
+        description: `The evidence provided is a ${inputType}. Assess only what is observable in this input.`,
+        content: "<<INSERT_" + inputType.toUpperCase().replace(/\s+/g,"_") + "_HERE>>"
+      },
+      guidelines: d.guidelines,
+      instructions: [
+        "Assess the learner against each guideline for this competency domain.",
+        "Cite specific evidence quoted or referenced from the input.",
+        "Assign a milestone-style level from 1 (novice) to 5 (aspirational).",
+        "Note any patient-safety concerns explicitly.",
+        "If the input lacks evidence for a guideline, mark it 'not assessable'."
+      ],
+      output_schema: {
+        overall_level: "1-5",
+        summary: "string",
+        per_guideline: [{
+          guideline: "string",
+          level: "1-5 or not_assessable",
+          evidence: "string",
+          feedback: "string"
+        }],
+        strengths: ["string"],
+        areas_for_improvement: ["string"],
+        safety_flags: ["string"]
+      }
+    }
+  };
+}
+
+document.getElementById("gen").onclick = () =>
+  document.getElementById("out").textContent = JSON.stringify(build(), null, 2);
+document.getElementById("copy").onclick = () =>
+  navigator.clipboard.writeText(document.getElementById("out").textContent);
+document.getElementById("download").onclick = () => {
+  const blob = new Blob([document.getElementById("out").textContent], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "cbme_assessment_prompt.json"; a.click();
+};
+
+boot();
+</script>
+</body>
+</html>
