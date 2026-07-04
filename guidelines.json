@@ -1,7 +1,115 @@
 {
+  "meta": {
+    "title": "CBME Assessment Prompt Builder",
+    "description": "Curated, source-linked summaries of competency-based medical education (CBME) frameworks for building traceable LLM assessment prompts in Graduate Medical Education.",
+    "disclaimer": "Guideline text below consists of curated paraphrases of the cited primary sources, not verbatim reproductions. For high-stakes or accreditation use, replace these summaries with the official, specialty-specific milestone language from the sources referenced for each domain.",
+    "how_to_cite_this_tool": "Zhu JHQ. CBME Assessment Prompt Builder [software]. 2026. Available from: https://jhqzhu0731.github.io/medical-cbme-assessor/"
+  },
+  "citations": {
+    "swing2007": {
+      "authors": "Swing SR",
+      "year": 2007,
+      "title": "The ACGME outcome project: retrospective and prospective",
+      "source": "Medical Teacher. 2007;29(7):648-654",
+      "doi": "10.1080/01421590701392903",
+      "url": "https://doi.org/10.1080/01421590701392903",
+      "type": "journal"
+    },
+    "acgme_cpr": {
+      "authors": "Accreditation Council for Graduate Medical Education (ACGME)",
+      "year": 2024,
+      "title": "ACGME Common Program Requirements (Residency), Section IV.B.1 (Core Competencies)",
+      "source": "Chicago, IL: ACGME",
+      "url": "https://www.acgme.org/programs-and-institutions/programs/common-program-requirements/",
+      "type": "standard"
+    },
+    "milestones_guidebook": {
+      "authors": "Edgar L, McLean S, Hogan SO, Hamstra S, Holmboe ES",
+      "year": 2020,
+      "title": "The Milestones Guidebook (Version 2020)",
+      "source": "Chicago, IL: Accreditation Council for Graduate Medical Education",
+      "url": "https://www.acgme.org/globalassets/MilestonesGuidebook.pdf",
+      "type": "guidebook"
+    },
+    "nasca2012": {
+      "authors": "Nasca TJ, Philibert I, Brigham T, Flynn TC",
+      "year": 2012,
+      "title": "The next GME accreditation system \u2014 rationale and benefits",
+      "source": "New England Journal of Medicine. 2012;366(11):1051-1056",
+      "doi": "10.1056/NEJMsr1200117",
+      "url": "https://doi.org/10.1056/NEJMsr1200117",
+      "type": "journal"
+    },
+    "canmeds2015": {
+      "authors": "Frank JR, Snell L, Sherbino J, editors",
+      "year": 2015,
+      "title": "CanMEDS 2015 Physician Competency Framework",
+      "source": "Ottawa: Royal College of Physicians and Surgeons of Canada. ISBN 978-1-926588-28-5",
+      "url": "https://canmeds.royalcollege.ca/en/framework",
+      "type": "framework"
+    },
+    "frank2010": {
+      "authors": "Frank JR, Snell LS, Ten Cate O, et al.",
+      "year": 2010,
+      "title": "Competency-based medical education: theory to practice",
+      "source": "Medical Teacher. 2010;32(8):638-645",
+      "doi": "10.3109/0142159X.2010.501190",
+      "url": "https://doi.org/10.3109/0142159X.2010.501190",
+      "type": "journal"
+    },
+    "tencate2013": {
+      "authors": "Ten Cate O",
+      "year": 2013,
+      "title": "Nuts and bolts of entrustable professional activities",
+      "source": "Journal of Graduate Medical Education. 2013;5(1):157-158",
+      "doi": "10.4300/JGME-D-12-00380.1",
+      "url": "https://doi.org/10.4300/JGME-D-12-00380.1",
+      "type": "journal"
+    },
+    "amee31": {
+      "authors": "Norcini J, Burch V",
+      "year": 2007,
+      "title": "Workplace-based assessment as an educational tool: AMEE Guide No. 31",
+      "source": "Medical Teacher. 2007;29(9-10):855-871",
+      "doi": "10.1080/01421590701775453",
+      "url": "https://doi.org/10.1080/01421590701775453",
+      "type": "journal"
+    },
+    "minicex2003": {
+      "authors": "Norcini JJ, Blank LL, Duffy FD, Fortna GS",
+      "year": 2003,
+      "title": "The mini-CEX: a method for assessing clinical skills",
+      "source": "Annals of Internal Medicine. 2003;138(6):476-481",
+      "doi": "10.7326/0003-4819-138-6-200303180-00012",
+      "url": "https://doi.org/10.7326/0003-4819-138-6-200303180-00012",
+      "type": "journal"
+    },
+    "acgme_assessment": {
+      "authors": "Holmboe ES, Iobst WF",
+      "year": 2020,
+      "title": "Assessment Guidebook",
+      "source": "Chicago, IL: Accreditation Council for Graduate Medical Education",
+      "url": "https://www.acgme.org/globalassets/pdfs/milestones/guidebooks/assessmentguidebook.pdf",
+      "type": "guidebook"
+    }
+  },
+  "rubric": {
+    "name": "ACGME Milestones developmental rating (Levels 1\u20135)",
+    "scale": [
+      { "level": 1, "label": "Novice / beginning resident behaviors" },
+      { "level": 2, "label": "Advanced beginner; performs with guidance" },
+      { "level": 3, "label": "Competent; progressing toward independence" },
+      { "level": 4, "label": "Proficient; ready for unsupervised practice (typical graduation target)" },
+      { "level": 5, "label": "Aspirational / expert; exceeds expectations for graduation" }
+    ],
+    "not_assessable": "Use when the provided evidence contains no observable data for a guideline.",
+    "sources": ["milestones_guidebook", "nasca2012"]
+  },
   "frameworks": {
     "ACGME": {
       "label": "ACGME Core Competencies (US GME)",
+      "citation_note": "Six Core Competencies codified by the ACGME Outcome Project and operationalized through the Milestones; domain summaries below paraphrase the Common Program Requirements and Milestones Guidebook.",
+      "sources": ["swing2007", "acgme_cpr", "milestones_guidebook", "nasca2012"],
       "domains": {
         "patient_care": {
           "name": "Patient Care & Procedural Skills",
@@ -10,7 +118,8 @@
             "Develops prioritized differential diagnoses and management plans",
             "Performs procedures safely with appropriate indications and consent",
             "Adapts plans based on patient response and new data"
-          ]
+          ],
+          "sources": ["acgme_cpr", "milestones_guidebook"]
         },
         "medical_knowledge": {
           "name": "Medical Knowledge",
@@ -18,7 +127,8 @@
             "Applies evidence-based and physiologic reasoning to clinical problems",
             "Demonstrates knowledge of diagnostic testing and therapeutics",
             "Identifies knowledge gaps and connects them to patient care decisions"
-          ]
+          ],
+          "sources": ["acgme_cpr", "milestones_guidebook"]
         },
         "pbli": {
           "name": "Practice-Based Learning & Improvement",
@@ -26,7 +136,8 @@
             "Incorporates feedback and self-assessment into improvement",
             "Uses evidence and literature to inform decisions at the point of care",
             "Participates in quality improvement and error analysis"
-          ]
+          ],
+          "sources": ["acgme_cpr", "milestones_guidebook"]
         },
         "communication": {
           "name": "Interpersonal & Communication Skills",
@@ -34,7 +145,8 @@
             "Communicates clearly and empathetically with patients and families",
             "Delivers organized, accurate handoffs and documentation",
             "Uses shared decision-making and confirms understanding"
-          ]
+          ],
+          "sources": ["acgme_cpr", "milestones_guidebook"]
         },
         "professionalism": {
           "name": "Professionalism",
@@ -42,7 +154,8 @@
             "Demonstrates honesty, integrity, and accountability",
             "Respects patient autonomy, privacy, and cultural context",
             "Recognizes and manages conflicts of interest and personal limits"
-          ]
+          ],
+          "sources": ["acgme_cpr", "milestones_guidebook"]
         },
         "sbp": {
           "name": "Systems-Based Practice",
@@ -50,64 +163,99 @@
             "Coordinates care across the interprofessional team and settings",
             "Considers cost, safety, and resource stewardship",
             "Navigates systems to advocate for patient needs"
-          ]
+          ],
+          "sources": ["acgme_cpr", "milestones_guidebook"]
         }
       }
     },
     "CanMEDS": {
       "label": "CanMEDS Roles (Canada/International)",
+      "citation_note": "Seven CanMEDS Roles; domain summaries below paraphrase the corresponding Role chapters of the CanMEDS 2015 Physician Competency Framework.",
+      "sources": ["canmeds2015", "frank2010"],
       "domains": {
         "medical_expert": {
           "name": "Medical Expert",
           "guidelines": [
             "Integrates knowledge, skills, and attitudes in clinical decision-making",
             "Performs assessments and interventions appropriate to competence level"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         },
         "communicator": {
           "name": "Communicator",
           "guidelines": [
             "Establishes rapport and gathers/synthesizes patient information",
             "Shares information and plans clearly with patients and teams"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         },
         "collaborator": {
           "name": "Collaborator",
           "guidelines": [
             "Works effectively within interprofessional teams",
             "Manages handovers and shared care safely"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         },
         "leader": {
           "name": "Leader",
           "guidelines": [
             "Contributes to system improvement and resource stewardship",
             "Manages time, priorities, and team tasks"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         },
         "health_advocate": {
           "name": "Health Advocate",
           "guidelines": [
             "Responds to individual patient and community health needs",
             "Addresses determinants of health in care plans"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         },
         "scholar": {
           "name": "Scholar",
           "guidelines": [
             "Applies best evidence and lifelong learning to practice",
             "Teaches and gives constructive feedback"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         },
         "professional": {
           "name": "Professional",
           "guidelines": [
             "Demonstrates ethical practice and accountability",
             "Maintains standards and personal well-being"
-          ]
+          ],
+          "sources": ["canmeds2015"]
         }
       }
     }
   },
-  "input_types": ["transcript", "test", "video", "other"]
+  "input_types": [
+    {
+      "id": "transcript",
+      "label": "transcript",
+      "method": "Written record of a clinical encounter (e.g., a documented patient interaction), assessed as workplace-based evidence analogous to direct observation / mini-CEX.",
+      "sources": ["amee31", "minicex2003", "acgme_assessment"]
+    },
+    {
+      "id": "test",
+      "label": "test",
+      "method": "Knowledge or written assessment; a structured measure mapped to competencies per the ACGME Assessment Guidebook.",
+      "sources": ["acgme_assessment"]
+    },
+    {
+      "id": "video",
+      "label": "video",
+      "method": "Recorded direct observation of performance, assessed with a workplace-based observation instrument (e.g., mini-CEX).",
+      "sources": ["minicex2003", "amee31", "acgme_assessment"]
+    },
+    {
+      "id": "other",
+      "label": "other",
+      "method": "User-defined evidence source (e.g., OSCE checklist, multisource feedback, direct observation notes).",
+      "sources": ["amee31", "acgme_assessment"]
+    }
+  ]
 }

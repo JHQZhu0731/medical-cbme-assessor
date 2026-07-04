@@ -38,6 +38,7 @@
   }
   .chip.active { background: var(--brand); color: #fff; }
   ul.guides { margin: 8px 0 0; padding-left: 18px; color: var(--ink); font-size: .9rem; }
+  ul.guides li { margin-bottom: 4px; }
   button.primary {
     background: var(--brand); color: #fff; border: 0; padding: 12px 18px;
     border-radius: 10px; font-size: .95rem; cursor: pointer; font-weight: 600;
@@ -52,12 +53,37 @@
     overflow: auto; font-size: .8rem; max-height: 420px;
   }
   footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 0 30px; }
+
+  /* citation UI */
+  sup.ref { font-size: .7rem; margin-left: 2px; }
+  sup.ref a {
+    color: var(--brand); text-decoration: none; font-weight: 700;
+    background: var(--chip); border-radius: 6px; padding: 1px 5px;
+  }
+  sup.ref a:hover { background: var(--brand); color: #fff; }
+  .cite-note {
+    font-size: .82rem; color: var(--muted); margin-top: 10px;
+    border-left: 3px solid var(--brand-2); padding: 6px 0 6px 10px; background: #f7fbfb;
+  }
+  .src-line { font-size: .82rem; color: var(--muted); margin-top: 8px; }
+  .method { font-size: .85rem; color: var(--ink); margin-top: 8px; }
+  .rubric-scale { margin: 8px 0 0; padding-left: 18px; font-size: .88rem; }
+  .rubric-scale li { margin-bottom: 3px; }
+  ol.refs { margin: 6px 0 0; padding-left: 22px; font-size: .85rem; }
+  ol.refs li { margin-bottom: 10px; padding: 2px 0; }
+  ol.refs li.hl { background: #fffbe6; border-radius: 6px; }
+  ol.refs a { color: var(--brand); word-break: break-word; }
+  .disclaimer {
+    font-size: .8rem; color: #7a4a00; background: #fff7e6;
+    border: 1px solid #ffe1a6; border-radius: 10px; padding: 10px 12px; margin-top: 4px;
+  }
+  code.inline { background: var(--chip); padding: 2px 6px; border-radius: 6px; font-size: .82rem; }
 </style>
 </head>
 <body>
 <header>
   <h1>🩺 CBME Assessment Prompt Builder</h1>
-  <p>Turn competency-based medical education guidelines into an LLM-ready assessment prompt for GME.</p>
+  <p>Turn competency-based medical education guidelines into a fully cited, LLM-ready assessment prompt for GME.</p>
 </header>
 
 <main>
@@ -65,16 +91,20 @@
     <h2>1 · Framework &amp; Domain</h2>
     <label>Framework</label>
     <select id="framework"></select>
+    <div class="cite-note" id="frameworkCite"></div>
     <label>Competency domain</label>
     <select id="domain"></select>
     <label>Guidelines fetched for this domain</label>
     <ul class="guides" id="guides"></ul>
+    <div class="src-line" id="domainSrc"></div>
   </div>
 
   <div class="card">
-    <h2>2 · Input Type</h2>
+    <h2>2 · Input Type (Evidence Source)</h2>
     <label>What are you asking the LLM to assess?</label>
     <div class="chips" id="inputTypes"></div>
+    <div class="method" id="inputMethod"></div>
+    <div class="src-line" id="inputSrc"></div>
     <div id="otherWrap" style="display:none">
       <label>Describe the "other" input</label>
       <input id="otherInput" placeholder="e.g. OSCE checklist, direct observation notes" />
@@ -84,7 +114,14 @@
   </div>
 
   <div class="card">
-    <h2>3 · Generate JSON Prompt</h2>
+    <h2>3 · Rating Rubric</h2>
+    <p id="rubricName" style="font-size:.9rem;margin:0;font-weight:600;"></p>
+    <ol class="rubric-scale" id="rubricScale"></ol>
+    <div class="src-line" id="rubricSrc"></div>
+  </div>
+
+  <div class="card">
+    <h2>4 · Generate Cited JSON Prompt</h2>
     <div class="row">
       <button class="primary" id="gen">Generate</button>
       <button class="ghost" id="copy">Copy</button>
@@ -92,48 +129,137 @@
     </div>
     <pre id="out">{ }</pre>
   </div>
+
+  <div class="card">
+    <h2>References</h2>
+    <div class="disclaimer" id="disclaimer"></div>
+    <ol class="refs" id="refList"></ol>
+  </div>
+
+  <div class="card">
+    <h2>Cite this tool</h2>
+    <p style="font-size:.88rem;margin:0 0 6px;">If you use this builder in scholarly work, please cite it as:</p>
+    <p><code class="inline" id="citeTool"></code></p>
+  </div>
 </main>
 
-<footer>Built for Graduate Medical Education · Guidelines are curated summaries of ACGME &amp; CanMEDS frameworks.</footer>
+<footer>Built for Graduate Medical Education · Frameworks and rubric are curated summaries of primary sources, each linked in the References section.</footer>
 
 <script>
-let DATA = null, selectedInput = "transcript";
+let DATA = null, selectedInput = "transcript", REFNUM = {};
 
 async function boot() {
   DATA = await (await fetch("./guidelines.json")).json();
+
+  // Assign a stable citation number to each source key.
+  Object.keys(DATA.citations).forEach((k, i) => { REFNUM[k] = i + 1; });
+
   const fw = document.getElementById("framework");
-  Object.entries(DATA.frameworks).forEach(([k, v]) =>
-    fw.add(new Option(v.label, k)));
+  Object.entries(DATA.frameworks).forEach(([k, v]) => fw.add(new Option(v.label, k)));
+
   DATA.input_types.forEach(t => {
     const c = document.createElement("div");
-    c.className = "chip" + (t === selectedInput ? " active" : "");
-    c.textContent = t; c.onclick = () => pickInput(t, c);
+    c.className = "chip" + (t.id === selectedInput ? " active" : "");
+    c.textContent = t.label; c.dataset.id = t.id;
+    c.onclick = () => pickInput(t.id, c);
     document.getElementById("inputTypes").appendChild(c);
   });
+
+  renderRubric();
+  renderReferences();
+  document.getElementById("disclaimer").textContent = DATA.meta.disclaimer;
+  document.getElementById("citeTool").textContent = DATA.meta.how_to_cite_this_tool;
+
   fw.onchange = loadDomains; loadDomains();
+  showInputMeta();
 }
 
-function pickInput(t, el) {
-  selectedInput = t;
+/* Renders superscript citation badges like ¹ ² linking to the References list. */
+function refBadges(keys) {
+  if (!keys || !keys.length) return "";
+  return '<sup class="ref">' + keys.map(k =>
+    `<a href="#ref-${REFNUM[k]}" title="${citeText(k)}">${REFNUM[k]}</a>`
+  ).join("") + "</sup>";
+}
+
+function citeText(k) {
+  const c = DATA.citations[k];
+  let s = `${c.authors} (${c.year}). ${c.title}. ${c.source}.`;
+  if (c.doi) s += ` doi:${c.doi}`;
+  return s;
+}
+
+function srcLine(keys) {
+  if (!keys || !keys.length) return "";
+  return "Sources: " + keys.map(k => `[${REFNUM[k]}]`).join(" ");
+}
+
+function pickInput(id, el) {
+  selectedInput = id;
   document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
   el.classList.add("active");
-  document.getElementById("otherWrap").style.display = t === "other" ? "block" : "none";
+  document.getElementById("otherWrap").style.display = id === "other" ? "block" : "none";
+  showInputMeta();
+}
+
+function currentInput() {
+  return DATA.input_types.find(t => t.id === selectedInput);
+}
+
+function showInputMeta() {
+  const t = currentInput();
+  document.getElementById("inputMethod").innerHTML = t.method + refBadges(t.sources);
+  document.getElementById("inputSrc").textContent = srcLine(t.sources);
 }
 
 function loadDomains() {
   const fwKey = document.getElementById("framework").value;
+  const fw = DATA.frameworks[fwKey];
   const dom = document.getElementById("domain");
   dom.innerHTML = "";
-  const domains = DATA.frameworks[fwKey].domains;
-  Object.entries(domains).forEach(([k, v]) => dom.add(new Option(v.name, k)));
+  Object.entries(fw.domains).forEach(([k, v]) => dom.add(new Option(v.name, k)));
+  document.getElementById("frameworkCite").innerHTML =
+    fw.citation_note + " " + refBadges(fw.sources);
   dom.onchange = showGuides; showGuides();
 }
 
 function showGuides() {
   const fwKey = document.getElementById("framework").value;
   const dKey = document.getElementById("domain").value;
-  const g = DATA.frameworks[fwKey].domains[dKey].guidelines;
-  document.getElementById("guides").innerHTML = g.map(x => `<li>${x}</li>`).join("");
+  const d = DATA.frameworks[fwKey].domains[dKey];
+  document.getElementById("guides").innerHTML = d.guidelines.map(x => `<li>${x}</li>`).join("");
+  document.getElementById("domainSrc").innerHTML =
+    srcLine(d.sources) + " " + refBadges(d.sources);
+}
+
+function renderRubric() {
+  const r = DATA.rubric;
+  document.getElementById("rubricName").innerHTML = r.name + refBadges(r.sources);
+  document.getElementById("rubricScale").innerHTML =
+    r.scale.map(s => `<li><strong>Level ${s.level}:</strong> ${s.label}</li>`).join("") +
+    `<li><em>Not assessable:</em> ${r.not_assessable}</li>`;
+  document.getElementById("rubricSrc").textContent = srcLine(r.sources);
+}
+
+function renderReferences() {
+  document.getElementById("refList").innerHTML = Object.keys(DATA.citations).map(k => {
+    const c = DATA.citations[k];
+    const link = c.url ? ` <a href="${c.url}" target="_blank" rel="noopener">${c.url}</a>` : "";
+    return `<li id="ref-${REFNUM[k]}">${c.authors} (${c.year}). <em>${c.title}.</em> ${c.source}.` +
+           (c.doi ? ` doi:${c.doi}.` : "") + link + `</li>`;
+  }).join("");
+}
+
+/* Full formatted citation objects for every source key used in this prompt. */
+function citationsFor(keys) {
+  const uniq = [...new Set(keys)].filter(Boolean);
+  return uniq.map(k => {
+    const c = DATA.citations[k];
+    return {
+      ref: REFNUM[k], key: k, authors: c.authors, year: c.year,
+      title: c.title, source: c.source, doi: c.doi || null, url: c.url || null
+    };
+  });
 }
 
 function build() {
@@ -141,30 +267,45 @@ function build() {
   const dKey = document.getElementById("domain").value;
   const fw = DATA.frameworks[fwKey];
   const d = fw.domains[dKey];
+  const t = currentInput();
   const inputType = selectedInput === "other"
     ? (document.getElementById("otherInput").value || "other")
     : selectedInput;
 
+  const usedKeys = [
+    ...(fw.sources || []), ...(d.sources || []),
+    ...(t.sources || []), ...(DATA.rubric.sources || [])
+  ];
+
   return {
     assessment_task: {
       role: "You are an expert clinical competency assessor in Graduate Medical Education (GME).",
-      framework: fw.label,
-      competency_domain: d.name,
+      framework: { name: fw.label, sources: (fw.sources || []).map(k => REFNUM[k]) },
+      competency_domain: { name: d.name, sources: (d.sources || []).map(k => REFNUM[k]) },
       setting: "Real clinical setting (workplace-based assessment)",
       learner_level: document.getElementById("level").value || "unspecified",
       input: {
         type: inputType,
         label: inputType,
+        method: t.method,
+        sources: (t.sources || []).map(k => REFNUM[k]),
         description: `The evidence provided is a ${inputType}. Assess only what is observable in this input.`,
         content: "<<INSERT_" + inputType.toUpperCase().replace(/\s+/g,"_") + "_HERE>>"
       },
       guidelines: d.guidelines,
+      rubric: {
+        name: DATA.rubric.name,
+        scale: DATA.rubric.scale,
+        not_assessable: DATA.rubric.not_assessable,
+        sources: (DATA.rubric.sources || []).map(k => REFNUM[k])
+      },
       instructions: [
         "Assess the learner against each guideline for this competency domain.",
         "Cite specific evidence quoted or referenced from the input.",
-        "Assign a milestone-style level from 1 (novice) to 5 (aspirational).",
+        "Assign a milestone-style level from 1 (novice) to 5 (aspirational) using the rubric above.",
+        "Ground each rating in the cited competency framework language and note the relevant reference number(s).",
         "Note any patient-safety concerns explicitly.",
-        "If the input lacks evidence for a guideline, mark it 'not assessable'."
+        "If the input lacks evidence for a guideline, mark it 'not_assessable'."
       ],
       output_schema: {
         overall_level: "1-5",
@@ -173,11 +314,17 @@ function build() {
           guideline: "string",
           level: "1-5 or not_assessable",
           evidence: "string",
-          feedback: "string"
+          feedback: "string",
+          source_refs: "array of reference numbers"
         }],
         strengths: ["string"],
         areas_for_improvement: ["string"],
         safety_flags: ["string"]
+      },
+      provenance: {
+        generated_by: DATA.meta.how_to_cite_this_tool,
+        disclaimer: DATA.meta.disclaimer,
+        references: citationsFor(usedKeys)
       }
     }
   };
