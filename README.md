@@ -53,6 +53,51 @@ each linked to its source. For specialty-specific, verbatim ACGME Milestones 2.0
 entries in `guidelines.json` with the official milestone language for your program. Citation metadata
 lives in the `citations`, `rubric`, and per-domain `sources` fields of `guidelines.json`.
 
+## CBME Competency Assessment Evidence Map
+
+This repository links CBME competencies to assessment tools (rubrics, checklists, rating scales,
+workplace-based assessments, etc.) that have been described in the research literature. For each
+competency, we aim to:
+
+- Identify published assessment tools explicitly designed to measure that competency.
+- Summarize how these tools were developed, implemented, and evaluated.
+- Document **limitations and challenges** reported by researchers when using these tools (e.g.,
+  reliability issues, workload, limited validity evidence, contextual constraints).
+- Highlight gaps where competencies lack robust, well-validated assessment instruments.
+
+The goal is to provide:
+
+- A **machine-readable text resource** that downstream LLMs can ingest to assist in designing and
+  critiquing CBME assessment tools.
+- A **human-readable overview** of the current evidence base and its limitations, supporting
+  educators and curriculum designers who are working on competency assessment.
+
+For details, see the generated ingestion text file:
+
+- [`cbme_competency_assessment_evidence.txt`](cbme_competency_assessment_evidence.txt) — covers all
+  6 ACGME Core Competencies and 7 CanMEDS 2015 Roles, with per-competency tools, design notes,
+  reported limitations, and a cross-competency synthesis (regenerated as new competencies and
+  publications are added).
+
+**Evidence highlights (what the map shows):**
+
+| Competency | Representative tool(s) | Key reported limitation |
+|---|---|---|
+| Patient Care / Procedural | mini-CEX, DOPS, O-SCORE, OSCE | Needs many observations/raters; formative-vs-summative confusion; "gaming" |
+| Medical Knowledge | MCQ / in-training exam, Script Concordance Test | SCT scoring gaming; weak consequence validity; knowledge ≠ practice |
+| Practice-Based Learning & Improvement | PBLI rubric, portfolios, QI/dashboards, EBM tests | No validated/reliable tools; reflective-practice hard to assess; attribution |
+| Communication / Communicator | SEGUE, Kalamazoo (KEECC-A) | Missing predictive validity; modest inter-rater reliability; sim→practice gap |
+| Professionalism / Professional | P-MEX, multisource feedback | Rater variation, ceiling effects, time burden |
+| Systems-Based Practice | MSF, QI projects, safety/quality data | The "orphan competency" — no validated instrument; attribution problems |
+| Medical Expert | EPAs / entrustment scales (Ottawa, Chen) | Rater variability; WBAs alone insufficient for summative entrustment |
+| Collaborator | Interprofessional Collaborator Assessment Rubric (ICAR) | Conflict items unobservable; single-site; needs prolonged observation |
+| Leader | LEADER 360 tool; LEADS framework | Largely under-developed; no consistent, validated leadership assessment |
+| Health Advocate | *(no validated instrument)* | **Insufficient published evidence**; ambiguous definitions; low stakes |
+| Scholar | Fresno test, Berlin questionnaire, ACE tool | Cover ≤ partial EBM steps; medicine-only; expert-, not outcome-, referenced |
+
+Full citations with DOIs are in the ingestion file's master reference list and in the References
+section below.
+
 ## References
 
 The frameworks, rubric, and assessment-tool mappings summarized in this tool are drawn from the
