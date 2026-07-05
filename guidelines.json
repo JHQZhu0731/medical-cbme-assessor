@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "CBME Assessment Prompt Builder",
-    "description": "Curated, source-linked summaries of competency-based medical education (CBME) frameworks for building traceable LLM assessment prompts in Graduate Medical Education.",
-    "disclaimer": "Guideline text below consists of curated paraphrases of the cited primary sources, not verbatim reproductions. For high-stakes or accreditation use, replace these summaries with the official, specialty-specific milestone language from the sources referenced for each domain.",
-    "how_to_cite_this_tool": "Zhu JHQ. CBME Assessment Prompt Builder [software]. 2026. Available from: https://jhqzhu0731.github.io/medical-cbme-assessor/"
+    "title": "CBME Assessment Prompt Builder & RAG Agent",
+    "description": "Curated, source-linked database of competency-based medical education (CBME) frameworks and validated assessment tools with their reported psychometric and practical limitations.",
+    "disclaimer": "Guideline text and tool summaries consist of curated paraphrases of the cited primary sources. For high-stakes or accreditation use, replace these summaries with official program-specific milestone language.",
+    "how_to_cite_this_tool": "Zhu JHQ. CBME Assessment Prompt Builder & RAG Agent [software]. 2026. Available from: https://jhqzhu0731.github.io/medical-cbme-assessor/"
   },
   "citations": {
     "swing2007": {
@@ -12,41 +12,36 @@
       "title": "The ACGME outcome project: retrospective and prospective",
       "source": "Medical Teacher. 2007;29(7):648-654",
       "doi": "10.1080/01421590701392903",
-      "url": "https://doi.org/10.1080/01421590701392903",
-      "type": "journal"
+      "url": "https://doi.org/10.1080/01421590701392903"
     },
     "acgme_cpr": {
       "authors": "Accreditation Council for Graduate Medical Education (ACGME)",
       "year": 2024,
       "title": "ACGME Common Program Requirements (Residency), Section IV.B.1 (Core Competencies)",
       "source": "Chicago, IL: ACGME",
-      "url": "https://www.acgme.org/programs-and-institutions/programs/common-program-requirements/",
-      "type": "standard"
+      "url": "https://www.acgme.org/programs-and-institutions/programs/common-program-requirements/"
     },
     "milestones_guidebook": {
       "authors": "Edgar L, McLean S, Hogan SO, Hamstra S, Holmboe ES",
       "year": 2020,
       "title": "The Milestones Guidebook (Version 2020)",
-      "source": "Chicago, IL: Accreditation Council for Graduate Medical Education",
-      "url": "https://www.acgme.org/globalassets/MilestonesGuidebook.pdf",
-      "type": "guidebook"
+      "source": "Chicago, IL: ACGME",
+      "url": "https://www.acgme.org/globalassets/MilestonesGuidebook.pdf"
     },
     "nasca2012": {
       "authors": "Nasca TJ, Philibert I, Brigham T, Flynn TC",
       "year": 2012,
-      "title": "The next GME accreditation system \u2014 rationale and benefits",
+      "title": "The next GME accreditation system — rationale and benefits",
       "source": "New England Journal of Medicine. 2012;366(11):1051-1056",
       "doi": "10.1056/NEJMsr1200117",
-      "url": "https://doi.org/10.1056/NEJMsr1200117",
-      "type": "journal"
+      "url": "https://doi.org/10.1056/NEJMsr1200117"
     },
     "canmeds2015": {
       "authors": "Frank JR, Snell L, Sherbino J, editors",
       "year": 2015,
       "title": "CanMEDS 2015 Physician Competency Framework",
       "source": "Ottawa: Royal College of Physicians and Surgeons of Canada. ISBN 978-1-926588-28-5",
-      "url": "https://canmeds.royalcollege.ca/en/framework",
-      "type": "framework"
+      "url": "https://canmeds.royalcollege.ca/en/framework"
     },
     "frank2010": {
       "authors": "Frank JR, Snell LS, Ten Cate O, et al.",
@@ -54,8 +49,7 @@
       "title": "Competency-based medical education: theory to practice",
       "source": "Medical Teacher. 2010;32(8):638-645",
       "doi": "10.3109/0142159X.2010.501190",
-      "url": "https://doi.org/10.3109/0142159X.2010.501190",
-      "type": "journal"
+      "url": "https://doi.org/10.3109/0142159X.2010.501190"
     },
     "tencate2013": {
       "authors": "Ten Cate O",
@@ -63,8 +57,7 @@
       "title": "Nuts and bolts of entrustable professional activities",
       "source": "Journal of Graduate Medical Education. 2013;5(1):157-158",
       "doi": "10.4300/JGME-D-12-00380.1",
-      "url": "https://doi.org/10.4300/JGME-D-12-00380.1",
-      "type": "journal"
+      "url": "https://doi.org/10.4300/JGME-D-12-00380.1"
     },
     "amee31": {
       "authors": "Norcini J, Burch V",
@@ -72,8 +65,7 @@
       "title": "Workplace-based assessment as an educational tool: AMEE Guide No. 31",
       "source": "Medical Teacher. 2007;29(9-10):855-871",
       "doi": "10.1080/01421590701775453",
-      "url": "https://doi.org/10.1080/01421590701775453",
-      "type": "journal"
+      "url": "https://doi.org/10.1080/01421590701775453"
     },
     "minicex2003": {
       "authors": "Norcini JJ, Blank LL, Duffy FD, Fortna GS",
@@ -81,20 +73,151 @@
       "title": "The mini-CEX: a method for assessing clinical skills",
       "source": "Annals of Internal Medicine. 2003;138(6):476-481",
       "doi": "10.7326/0003-4819-138-6-200303180-00012",
-      "url": "https://doi.org/10.7326/0003-4819-138-6-200303180-00012",
-      "type": "journal"
+      "url": "https://doi.org/10.7326/0003-4819-138-6-200303180-00012"
     },
     "acgme_assessment": {
       "authors": "Holmboe ES, Iobst WF",
       "year": 2020,
       "title": "Assessment Guidebook",
-      "source": "Chicago, IL: Accreditation Council for Graduate Medical Education",
-      "url": "https://www.acgme.org/globalassets/pdfs/milestones/guidebooks/assessmentguidebook.pdf",
-      "type": "guidebook"
+      "source": "Chicago, IL: ACGME",
+      "url": "https://www.acgme.org/globalassets/pdfs/milestones/guidebooks/assessmentguidebook.pdf"
+    },
+    "dops_review": {
+      "authors": "Review of the validity of DOPS",
+      "year": 2023,
+      "title": "Review of the validity of DOPS as an assessment tool for the procedural skills of surgical trainees",
+      "source": "Annals of the Royal College of Surgeons of England. 2023;105",
+      "doi": "10.1308/rcsann.2022.0052",
+      "url": "https://doi.org/10.1308/rcsann.2022.0052"
+    },
+    "dops_sys": {
+      "authors": "Direct Observation Systematic Review",
+      "year": 2018,
+      "title": "Direct observation of procedural skills (DOPS) evaluation method: a systematic review of evidence",
+      "source": "Journal of Education and Health Promotion. 2018;7:104",
+      "doi": "10.4103/jehp.jehp_32_18",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6108252/"
+    },
+    "oscore_ref": {
+      "authors": "Gofton W, Dudek N, Wood TJ, Balaa F, Hamstra SJ",
+      "year": 2012,
+      "title": "The Ottawa Surgical Competency Operating Room Evaluation (O-SCORE)",
+      "source": "Academic Medicine. 2012;87(10):1401-1407",
+      "doi": "10.1097/ACM.0b013e3182677805",
+      "url": "https://doi.org/10.1097/ACM.0b013e3182677805"
+    },
+    "oscore_reframe": {
+      "authors": "MacEwan MJ, Dudek N, Wood TJ, Gofton W",
+      "year": 2022,
+      "title": "Reframing the O-SCORE as a retrospective supervision scale using validity theory",
+      "source": "Journal of Graduate Medical Education. 2022;14(1):22-26",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8848889/"
+    },
+    "sct_review": {
+      "authors": "Lubarsky S, Charlin B, Cook DA, Chalk C, van der Vleuten CPM",
+      "year": 2011,
+      "title": "Script concordance testing: a review of published validity evidence",
+      "source": "Medical Education. 2011;45(4):329-338",
+      "doi": "10.1111/j.1365-2923.2010.03863.x",
+      "url": "https://doi.org/10.1111/j.1365-2923.2010.03863.x"
+    },
+    "pbli_tool": {
+      "authors": "PBLI Assessment Tool Authors",
+      "year": 2011,
+      "title": "Development and preliminary evaluation of a Practice-Based Learning and Improvement tool",
+      "source": "Journal of Graduate Medical Education. 2011;3(1):41-47",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3186261/"
+    },
+    "pbli_consensus": {
+      "authors": "Kessler CS, et al",
+      "year": 2012,
+      "title": "Assessing practice-based learning and improvement",
+      "source": "Academic Emergency Medicine. 2012;19(12):1440-1449",
+      "doi": "10.1111/acem.12026",
+      "url": "https://doi.org/10.1111/acem.12026"
+    },
+    "segue2001": {
+      "authors": "Makoul G",
+      "year": 2001,
+      "title": "The SEGUE Framework for teaching and assessing communication skills",
+      "source": "Patient Education and Counseling. 2001;45(1):23-34",
+      "doi": "10.1016/S0738-3991(01)00136-7",
+      "url": "https://doi.org/10.1016/S0738-3991(01)00136-7"
+    },
+    "kalamazoo2001": {
+      "authors": "Makoul G",
+      "year": 2001,
+      "title": "Essential elements of communication in medical encounters: the Kalamazoo consensus statement",
+      "source": "Academic Medicine. 2001;76(4):390-393",
+      "doi": "10.1097/00001888-200104000-00021",
+      "url": "https://doi.org/10.1097/00001888-200104000-00021"
+    },
+    "pmex2006": {
+      "authors": "Cruess R, McIlroy JH, Cruess S, Ginsburg S, Steinert Y",
+      "year": 2006,
+      "title": "The Professionalism Mini-Evaluation Exercise: a preliminary investigation",
+      "source": "Academic Medicine. 2006;81(10 Suppl):S74-S78",
+      "doi": "10.1097/00001888-200610001-00019",
+      "url": "https://doi.org/10.1097/00001888-200610001-00019"
+    },
+    "pmex2021": {
+      "authors": "P-MEX Validity Investigators",
+      "year": 2021,
+      "title": "A meaningful and actionable professionalism assessment: validity evidence for the P-MEX across 8 years",
+      "source": "Academic Medicine. 2021;96(11S):S57-S63",
+      "doi": "10.1097/ACM.0000000000004286",
+      "url": "https://doi.org/10.1097/ACM.0000000000004286"
+    },
+    "icar2011": {
+      "authors": "Curran V, Hollett A, Casimiro LM, et al",
+      "year": 2011,
+      "title": "Development and validation of the Interprofessional Collaborator Assessment Rubric (ICAR)",
+      "source": "Journal of Interprofessional Care. 2011;25(5):339-344",
+      "doi": "10.3109/13561820.2011.589542",
+      "url": "https://doi.org/10.3109/13561820.2011.589542"
+    },
+    "icar2014": {
+      "authors": "Curran V, Reliability Study",
+      "year": 2014,
+      "title": "Reliability of the ICAR in multisource feedback with postgraduate medical residents",
+      "source": "BMC Medical Education. 2014;14:279",
+      "doi": "10.1186/s12909-014-0279-9",
+      "url": "https://doi.org/10.1186/s12909-014-0279-9"
+    },
+    "leader2021": {
+      "authors": "LEADER Tool Development Group",
+      "year": 2021,
+      "title": "Assessing leadership in junior resident physicians: the LEADER multisource feedback tool",
+      "source": "BMJ Leader. 2021;5(4):238-243",
+      "url": "https://bmjleader.bmj.com/content/5/4/238"
+    },
+    "health_advocate2023": {
+      "authors": "LaDonna KA, et al",
+      "year": 2023,
+      "title": "Grappling with key questions about assessment of the Health Advocate role",
+      "source": "Canadian Medical Education Journal. 2023;14(1):22-29",
+      "doi": "10.36834/cmej.73878",
+      "url": "https://doi.org/10.36834/cmej.73878"
+    },
+    "health_advocate2020": {
+      "authors": "Advocacy Education Group",
+      "year": 2020,
+      "title": "Addressing the health advocate role in medical education",
+      "source": "BMC Medical Education. 2020;20:28",
+      "doi": "10.1186/s12909-020-1938-7",
+      "url": "https://doi.org/10.1186/s12909-020-1938-7"
+    },
+    "osce_systematic": {
+      "authors": "Simulation Assessment Investigators",
+      "year": 2015,
+      "title": "A systematic review of validity evidence for checklists versus global rating scales in simulation-based assessment",
+      "source": "Medical Education. 2015;49(2):161-173",
+      "doi": "10.1111/medu.12605",
+      "url": "https://doi.org/10.1111/medu.12605"
     }
   },
   "rubric": {
-    "name": "ACGME Milestones developmental rating (Levels 1\u20135)",
+    "name": "ACGME Milestones developmental rating (Levels 1–5)",
     "scale": [
       { "level": 1, "label": "Novice / beginning resident behaviors" },
       { "level": 2, "label": "Advanced beginner; performs with guidance" },
@@ -119,7 +242,19 @@
             "Performs procedures safely with appropriate indications and consent",
             "Adapts plans based on patient response and new data"
           ],
-          "sources": ["acgme_cpr", "milestones_guidebook"]
+          "sources": ["acgme_cpr", "milestones_guidebook"],
+          "evidence": {
+            "description": "Assessment of Patient Care relies on direct clinical observations and procedural audits.",
+            "tools": [
+              { "type": "WBA Rating Scale", "name": "Mini-Clinical Evaluation Exercise (mini-CEX)", "context": "Real clinical encounters", "target": "Residents/clerks", "sources": ["minicex2003"] },
+              { "type": "Procedural Checklist", "name": "Direct Observation of Procedural Skills (DOPS)", "context": "Bedside/Procedural", "target": "Surgical/Postgraduate trainees", "sources": ["dops_review", "dops_sys"] },
+              { "type": "Entrustment Scale", "name": "Ottawa Surgical Competency Operating Room Evaluation (O-SCORE)", "context": "Operating room/bedside", "target": "Surgical residents", "sources": ["oscore_ref", "oscore_reframe"] }
+            ],
+            "design": "Formative WBAs focus on measuring active procedural mechanics, history gathering, and clinical reasoning.",
+            "effectiveness": "DOPS reaches G >= 0.70 reliability with 6 observations from >=3 raters. O-SCORE effectively ranks operational independence.",
+            "limitations": "Subject to halo effect and leniency bias. O-SCORE is retrospective (measuring past intervention) and is insufficient alone for prospective, high-stakes entrustment. Trainees may 'cherry-pick' easy cases.",
+            "gaps": "Lack of standardized rater training. Video audits (VOPS) are proposed to reduce implicit bias."
+          }
         },
         "medical_knowledge": {
           "name": "Medical Knowledge",
@@ -128,7 +263,18 @@
             "Demonstrates knowledge of diagnostic testing and therapeutics",
             "Identifies knowledge gaps and connects them to patient care decisions"
           ],
-          "sources": ["acgme_cpr", "milestones_guidebook"]
+          "sources": ["acgme_cpr", "milestones_guidebook"],
+          "evidence": {
+            "description": "Medical Knowledge is measured via objective testing of factual recall and reasoning under clinical uncertainty.",
+            "tools": [
+              { "type": "Standardized Exam", "name": "In-Training Examination (ITE) / Multiple Choice Questions (MCQ)", "context": "Written exams", "target": "All trainees", "sources": ["acgme_assessment"] },
+              { "type": "Reasoning Test", "name": "Script Concordance Test (SCT)", "context": "Clinical scenarios under uncertainty", "target": "Residents/students", "sources": ["sct_review"] }
+            ],
+            "design": "SCT scores examinees by comparing their clinical decisions under uncertainty with the aggregated opinions of an expert panel.",
+            "effectiveness": "SCT shows robust construct validity (discriminates senior vs junior cohorts).",
+            "limitations": "SCT scoring can be 'gamed' by selecting central options. Highly dependent on panel size (requires >=15 experts). Multiple choice testing measures 'knows' rather than clinical application.",
+            "gaps": "Long-term educational consequences of SCT remain poorly researched; missing standard-setting norms."
+          }
         },
         "pbli": {
           "name": "Practice-Based Learning & Improvement",
@@ -137,7 +283,18 @@
             "Uses evidence and literature to inform decisions at the point of care",
             "Participates in quality improvement and error analysis"
           ],
-          "sources": ["acgme_cpr", "milestones_guidebook"]
+          "sources": ["acgme_cpr", "milestones_guidebook"],
+          "evidence": {
+            "description": "PBLI tracks a learner's ability to self-assess, review evidence-based medicine (EBM), and perform QI.",
+            "tools": [
+              { "type": "Questionnaire/Rubric", "name": "Practice-Based Learning & Improvement Tool", "context": "Residency curriculum evaluation", "target": "All residents", "sources": ["pbli_tool"] },
+              { "type": "EBM Competence Test", "name": "Fresno Test of EBM Competence / Berlin Questionnaire", "context": "Written scenarios + rubrics", "target": "Postgraduates/students", "sources": ["dops_sys", "pbli_consensus"] }
+            ],
+            "design": "Evaluates reflective self-assessment, QI project completion, and Point-of-Care evidence synthesis.",
+            "effectiveness": "Fresno test reliably evaluates all 4 critical steps of EBM competency (ask, acquire, appraise, apply) with good inter-rater agreement.",
+            "limitations": "Lack of reproducible, validated tools for the reflective subcompetency. Dashboards contain metrics outside the direct control of individual trainees. Fresno is highly resource-intensive to grade.",
+            "gaps": "Missing generalizable, cross-specialty clinical registries. Need tools distinguishing EBM knowledge from actual bedside clinical practice."
+          }
         },
         "communication": {
           "name": "Interpersonal & Communication Skills",
@@ -146,7 +303,18 @@
             "Delivers organized, accurate handoffs and documentation",
             "Uses shared decision-making and confirms understanding"
           ],
-          "sources": ["acgme_cpr", "milestones_guidebook"]
+          "sources": ["acgme_cpr", "milestones_guidebook"],
+          "evidence": {
+            "description": "Communication skills are assessed via task-based checklists and direct observation.",
+            "tools": [
+              { "type": "Direct Observation Checklist", "name": "SEGUE Framework", "context": "SP encounters & real clinics", "target": "Medical students/residents", "sources": ["segue2001"] },
+              { "type": "Consensus Checklist", "name": "Kalamazoo Essential Elements Communication Checklist (Adapted)", "context": "Multi-rater settings", "target": "Residents/fellows", "sources": ["kalamazoo2001", "icar2014"] }
+            ],
+            "design": "Checklist elements explicitly measure relationship-building, information-gathering, shared decision-making, and structural closure.",
+            "effectiveness": "SEGUE exhibits high concurrent and construct validity; Kalamazoo Adapted (KEECC-A) is psychometrically robust and user-friendly.",
+            "limitations": "Checklists risk rewarding reductionist, rote behavior ('ticking boxes') rather than authentic interaction. Inter-rater reliability of Kalamazoo remains modest. Transfer of simulated skills to real practice is poorly verified.",
+            "gaps": "Few studies investigate predictive validity. Tools evaluating multiparty/family communication are severely lacking."
+          }
         },
         "professionalism": {
           "name": "Professionalism",
@@ -155,7 +323,18 @@
             "Respects patient autonomy, privacy, and cultural context",
             "Recognizes and manages conflicts of interest and personal limits"
           ],
-          "sources": ["acgme_cpr", "milestones_guidebook"]
+          "sources": ["acgme_cpr", "milestones_guidebook"],
+          "evidence": {
+            "description": "Professionalism relies on the observation of ethical actions, accountability, and multi-source feedback.",
+            "tools": [
+              { "type": "WBA Rating Scale", "name": "Professionalism Mini-Evaluation Exercise (P-MEX)", "context": "Clinical observations", "target": "Students/residents", "sources": ["pmex2006", "pmex2021"] },
+              { "type": "Multisource Feedback", "name": "360-Degree Feedback Surveys", "context": "Peer/Interprofessional care", "target": "All trainees", "sources": ["amee31"] }
+            ],
+            "design": "Evaluates 24 behaviorally anchored items across relationship skills, reflective skills, and time management.",
+            "effectiveness": "P-MEX demonstrates strong construct validity and cross-cultural adaptability (validated in Canada, Switzerland, Japan, Finland).",
+            "limitations": "High rater variation and ceiling effects (trainees score highly from the outset, limiting sensitivity). High administrative workload and time burden for observers to score and deliver feedback.",
+            "gaps": "Needs longitudinal multilevel analysis. Gaps remain in capturing physician well-being and managing personal limits."
+          }
         },
         "sbp": {
           "name": "Systems-Based Practice",
@@ -164,7 +343,17 @@
             "Considers cost, safety, and resource stewardship",
             "Navigates systems to advocate for patient needs"
           ],
-          "sources": ["acgme_cpr", "milestones_guidebook"]
+          "sources": ["acgme_cpr", "milestones_guidebook"],
+          "evidence": {
+            "description": "SBP measures system-level advocacy, cost-consciousness, and safety navigation.",
+            "tools": [
+              { "type": "Integrated Assessment", "name": "Interprofessional MSF, QI Projects, and Dashboard Review", "context": "System-wide data audits", "target": "Residents/fellows", "sources": ["pbli_consensus", "dops_sys", "acgme_assessment", "oscore_ref"] }
+            ],
+            "design": "Triangulates electronic record data, multisource care audits, and formal project execution.",
+            "effectiveness": "Provides systemic tracking of QI execution; allows committees (CCCs) to judge system-level contribution.",
+            "limitations": "The 'orphan competency' — lacks any single validated direct-observation instrument. Individual attribution of systemic patient safety outcomes is extremely difficult. Inconsistent curricula across programs.",
+            "gaps": "Severe shortage of generalizable, objective SBP assessment tools. Shortage of validated methods for evaluating individual system navigation."
+          }
         }
       }
     },
@@ -179,7 +368,18 @@
             "Integrates knowledge, skills, and attitudes in clinical decision-making",
             "Performs assessments and interventions appropriate to competence level"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "The central integrating role. Assessed using point-of-care direct observation tools and milestone metrics.",
+            "tools": [
+              { "type": "Entrustment-Supervision Scale", "name": "Ottawa Clinic Assessment Tool (OCAT) / O-SCORE", "context": "Bedside and operating room", "target": "Residents/clerks", "sources": ["oscore_ref", "oscore_reframe"] },
+              { "type": "Workplace-Based Assessment", "name": "Mini-CEX / Procedural DOPS", "context": "Point-of-care direct observation", "target": "All postgraduates", "sources": ["minicex2003", "dops_review"] }
+            ],
+            "design": "Applies retrospective supervision anchors (intervention needed) to measure integration of multiple intrinsic roles.",
+            "effectiveness": "High construct sensitivity; OCAT/O-SCORE clearly distinguish escalating training levels.",
+            "limitations": "Single-encounter observations suffer from low reliability. High rater variability; G-coefficients hover around 0.65 even with trained raters. Restrospective supervision does not directly equal prospective, high-stakes entrustment.",
+            "gaps": "Requires programmatic synthesis. Gaps exist in establishing standardized, multi-institutional entrustment benchmarks."
+          }
         },
         "communicator": {
           "name": "Communicator",
@@ -187,7 +387,17 @@
             "Establishes rapport and gathers/synthesizes patient information",
             "Shares information and plans clearly with patients and teams"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "See also ACGME 'Interpersonal & Communication Skills'. CanMEDS emphasizes patient-centered information exchange.",
+            "tools": [
+              { "type": "Direct Observation Checklist", "name": "SEGUE Framework / Adapted Kalamazoo", "context": "SP and clinical settings", "target": "All trainees", "sources": ["segue2001", "kalamazoo2001"] }
+            ],
+            "design": "Observes critical relational skills, diagnostic accuracy, and explicit verification of patient understanding.",
+            "effectiveness": "Provides structured, reproducible formats with high content validity and learner acceptability.",
+            "limitations": "Consensus was not reached on consistent, cross-phase workplace assessment feasibility in Delphi studies (2 of 5 competencies unresolvable). Checklists can induce artificial, tick-box behavior.",
+            "gaps": "Needs workplace-based, longitudinal predictive validity evidence."
+          }
         },
         "collaborator": {
           "name": "Collaborator",
@@ -195,7 +405,17 @@
             "Works effectively within interprofessional teams",
             "Manages handovers and shared care safely"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "Collaborator focuses on interprofessional teamwork, safe transitions of care, and conflict resolution.",
+            "tools": [
+              { "type": "Interprofessional Rubric", "name": "Interprofessional Collaborator Assessment Rubric (ICAR)", "context": "Rotations & simulated team meetings", "target": "All health students/practitioners", "sources": ["icar2011", "icar2014"] }
+            ],
+            "design": "31-item rubric assessing interprofessional communication, role clarity, collaborative planning, and conflict management.",
+            "effectiveness": "Demonstrates excellent discriminative validity across performance levels (p < .001); internal consistency alpha is extremely high (.88 - .96).",
+            "limitations": "High rates of missing data on conflict resolution items (difficult to observe when clinical teams function smoothly). Highly dependent on multi-source coordinator compliance and prolonged observation.",
+            "gaps": "Validated simulations for testing conflict management are needed. Generalizability to non-academic clinics remains unproven."
+          }
         },
         "leader": {
           "name": "Leader",
@@ -203,7 +423,17 @@
             "Contributes to system improvement and resource stewardship",
             "Manages time, priorities, and team tasks"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "The Leader role examines resource stewardship, personal leadership, and priority management.",
+            "tools": [
+              { "type": "Multisource Tool", "name": "LEADER 360 Survey", "context": "Rotations / clinical ward shifts", "target": "Junior residents", "sources": ["leader2021"] }
+            ],
+            "design": "360-degree tool targeting observable self-management and team interaction behaviors.",
+            "effectiveness": "Captures baseline administrative and basic team presence in junior cohorts.",
+            "limitations": "LEADER tool explicitly does not evaluate larger leadership constructs (systems complexity, budgeting, leading change). Delphi workgroups report zero key Leader competencies can be consistently assessed across phases.",
+            "gaps": "No validated workplace tools exist for senior-level leadership and healthcare financing."
+          }
         },
         "health_advocate": {
           "name": "Health Advocate",
@@ -211,7 +441,17 @@
             "Responds to individual patient and community health needs",
             "Addresses determinants of health in care plans"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "Health Advocate addresses clinical-level and community-level social determinants of health. (A major gap domain.)",
+            "tools": [
+              { "type": "No Validated Tool", "name": "Insufficient Published Evidence", "context": "N/A", "target": "None", "sources": ["health_advocate2023", "health_advocate2020"] }
+            ],
+            "design": "No widely adopted, validated direct-observation or performance-based instrument exists.",
+            "effectiveness": "N/A. Advocacy does not systematically influence high-stakes residency outcomes.",
+            "limitations": "Ambiguous definitions. Faculty report feeling unequipped or unwilling to evaluate advocacy actions. Delphi panels rate this role as not feasible for clinical workplace assessment.",
+            "gaps": "Severe. Requires a shared educational vision, ethically-aware rubrics, and authentic clinical/community placement assessments."
+          }
         },
         "scholar": {
           "name": "Scholar",
@@ -219,7 +459,17 @@
             "Applies best evidence and lifelong learning to practice",
             "Teaches and gives constructive feedback"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "Scholar encompasses teaching, scientific research appraisal, and lifelong learning.",
+            "tools": [
+              { "type": "EBM Competency Test", "name": "Fresno Test of EBM Competence / Berlin Questionnaire / ACE Tool", "context": "Scenario examinations", "target": "Medical postgraduates", "sources": ["dops_sys", "pbli_consensus", "acgme_assessment"] }
+            ],
+            "design": "Scenario-based open questions with detailed grading rubrics (Fresno) or multiple choice questions (Berlin/ACE).",
+            "effectiveness": "Fresno test shows robust construct validity and good inter-rater reliability for EBM steps.",
+            "limitations": "Fresno is resource-intensive to grade (~60 mins to complete + expert grading). Berlin/ACE focus almost exclusively on critical appraisal (Step 3) rather than application. Teaching and scholarship subcompetencies lack validated instruments.",
+            "gaps": "Shortage of validated bedside EBM tools. Absence of standardized, workplace-validated peer teaching evaluation metrics."
+          }
         },
         "professional": {
           "name": "Professional",
@@ -227,7 +477,17 @@
             "Demonstrates ethical practice and accountability",
             "Maintains standards and personal well-being"
           ],
-          "sources": ["canmeds2015"]
+          "sources": ["canmeds2015"],
+          "evidence": {
+            "description": "See ACGME 'Professionalism' for core details. Focuses on societal contracts, ethics, and well-being.",
+            "tools": [
+              { "type": "WBA Rating Scale", "name": "P-MEX / Multirater Surveys", "context": "Clinical observations", "target": "All residents", "sources": ["pmex2006", "pmex2021"] }
+            ],
+            "design": "Behavioral ratings on relationship building, boundaries, and personal accountability.",
+            "effectiveness": "P-MEX shows strong structural stability and cross-cultural validity.",
+            "limitations": "Ceiling effects. Assessing physician wellness and self-care remains largely unoperationalized in current scales.",
+            "gaps": "Validated, non-punitive methods for evaluating and supporting personal well-being are missing."
+          }
         }
       }
     }

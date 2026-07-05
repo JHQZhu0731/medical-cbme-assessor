@@ -3,11 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CBME Assessment Prompt Builder</title>
+<title>CBME Assessment Prompt Builder &amp; RAG Agent</title>
 <style>
   :root {
     --bg: #f4f7fb; --card: #ffffff; --ink: #0f2540; --muted: #5b708a;
     --brand: #0d6b6b; --brand-2: #12a0a0; --line: #e2e9f2; --chip: #eef6f6;
+    --error: #a8071a; --error-bg: #fff0f6; --error-border: #ffadd2;
+    --warning: #ad6800; --warning-bg: #fffbe6; --warning-border: #ffe58f;
+    --success: #237804; --success-bg: #f6ffed; --success-border: #b7eb8f;
+    --code-bg: #0f2540; --code-text: #d7f5f5;
   }
   * { box-sizing: border-box; }
   body {
@@ -16,120 +20,309 @@
   }
   header {
     background: linear-gradient(120deg, var(--brand), var(--brand-2));
-    color: #fff; padding: 28px 20px; text-align: center;
+    color: #fff; padding: 32px 20px; text-align: center;
+    box-shadow: 0 4px 12px rgba(13,107,107,.15);
   }
-  header h1 { margin: 0 0 6px; font-size: 1.5rem; }
+  header h1 { margin: 0 0 6px; font-size: 1.7rem; }
   header p { margin: 0; opacity: .9; font-size: .95rem; }
-  main { max-width: 900px; margin: -20px auto 40px; padding: 0 16px; }
+  
+  /* Navigation Tabs */
+  .nav-tabs {
+    display: flex; justify-content: center; background: #fff;
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 100;
+  }
+  .tab-btn {
+    padding: 14px 24px; border: 0; background: transparent; font-size: .95rem;
+    color: var(--muted); cursor: pointer; font-weight: 600; border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--brand); }
+  .tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+  main { max-width: 960px; margin: 24px auto 40px; padding: 0 16px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
   .card {
     background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-    padding: 20px; margin-bottom: 18px; box-shadow: 0 6px 20px rgba(15,37,64,.05);
+    padding: 24px; margin-bottom: 20px; box-shadow: 0 6px 20px rgba(15,37,64,.04);
   }
-  h2 { font-size: 1rem; margin: 0 0 12px; color: var(--brand); }
-  label { display: block; font-size: .85rem; color: var(--muted); margin: 10px 0 4px; }
+  h2 { font-size: 1.15rem; margin: 0 0 16px; color: var(--brand); border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+  h3 { font-size: 1rem; margin: 16px 0 8px; color: var(--ink); }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: 12px 0 4px; font-weight: 600; }
   select, input {
-    width: 100%; padding: 10px 12px; border: 1px solid var(--line);
-    border-radius: 9px; font-size: .95rem; background: #fff;
+    width: 100%; padding: 11px 14px; border: 1px solid var(--line);
+    border-radius: 9px; font-size: .95rem; background: #fff; color: var(--ink);
+    transition: border-color 0.2s;
   }
+  select:focus, input:focus { border-color: var(--brand-2); outline: none; }
+  
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
   .chip {
-    padding: 8px 14px; border-radius: 999px; background: var(--chip);
+    padding: 8px 16px; border-radius: 999px; background: var(--chip);
     border: 1px solid transparent; cursor: pointer; font-size: .85rem;
+    transition: all 0.2s;
   }
+  .chip:hover { background: #e0f2f2; }
   .chip.active { background: var(--brand); color: #fff; }
+  
   ul.guides { margin: 8px 0 0; padding-left: 18px; color: var(--ink); font-size: .9rem; }
   ul.guides li { margin-bottom: 4px; }
+  
   button.primary {
-    background: var(--brand); color: #fff; border: 0; padding: 12px 18px;
+    background: var(--brand); color: #fff; border: 0; padding: 12px 20px;
     border-radius: 10px; font-size: .95rem; cursor: pointer; font-weight: 600;
+    transition: background-color 0.2s;
   }
+  button.primary:hover { background: #0a5252; }
   button.ghost {
     background: #fff; color: var(--brand); border: 1px solid var(--brand);
-    padding: 12px 18px; border-radius: 10px; cursor: pointer; font-weight: 600;
+    padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600;
+    transition: all 0.2s;
   }
+  button.ghost:hover { background: var(--chip); }
   .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  
   pre {
-    background: #0f2540; color: #d7f5f5; padding: 16px; border-radius: 12px;
-    overflow: auto; font-size: .8rem; max-height: 420px;
+    background: var(--code-bg); color: var(--code-text); padding: 18px; border-radius: 12px;
+    overflow: auto; font-size: .82rem; max-height: 450px; border: 1px solid var(--ink);
   }
-  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 10px 0 30px; }
+  footer { text-align: center; color: var(--muted); font-size: .8rem; padding: 20px 0 40px; border-top: 1px solid var(--line); margin-top: 40px; }
 
-  /* citation UI */
-  sup.ref { font-size: .7rem; margin-left: 2px; }
+  /* Citations UI */
+  sup.ref { font-size: .7rem; margin-left: 2px; font-weight: bold; }
   sup.ref a {
     color: var(--brand); text-decoration: none; font-weight: 700;
     background: var(--chip); border-radius: 6px; padding: 1px 5px;
   }
   sup.ref a:hover { background: var(--brand); color: #fff; }
   .cite-note {
-    font-size: .82rem; color: var(--muted); margin-top: 10px;
-    border-left: 3px solid var(--brand-2); padding: 6px 0 6px 10px; background: #f7fbfb;
+    font-size: .85rem; color: var(--muted); margin: 8px 0 16px;
+    border-left: 3px solid var(--brand-2); padding: 6px 0 6px 12px; background: #f7fbfb;
+    border-radius: 0 6px 6px 0;
   }
-  .src-line { font-size: .82rem; color: var(--muted); margin-top: 8px; }
-  .method { font-size: .85rem; color: var(--ink); margin-top: 8px; }
+  .src-line { font-size: .82rem; color: var(--muted); margin-top: 8px; font-style: italic; }
+  .method { font-size: .88rem; color: var(--ink); margin-top: 8px; }
   .rubric-scale { margin: 8px 0 0; padding-left: 18px; font-size: .88rem; }
-  .rubric-scale li { margin-bottom: 3px; }
+  .rubric-scale li { margin-bottom: 4px; }
   ol.refs { margin: 6px 0 0; padding-left: 22px; font-size: .85rem; }
-  ol.refs li { margin-bottom: 10px; padding: 2px 0; }
-  ol.refs li.hl { background: #fffbe6; border-radius: 6px; }
-  ol.refs a { color: var(--brand); word-break: break-word; }
+  ol.refs li { margin-bottom: 10px; padding: 2px 0; line-height: 1.45; }
+  ol.refs a { color: var(--brand); word-break: break-word; text-decoration: none; font-weight: 600; }
+  ol.refs a:hover { text-decoration: underline; }
   .disclaimer {
-    font-size: .8rem; color: #7a4a00; background: #fff7e6;
-    border: 1px solid #ffe1a6; border-radius: 10px; padding: 10px 12px; margin-top: 4px;
+    font-size: .82rem; color: #7a4a00; background: var(--warning-bg);
+    border: 1px solid var(--warning-border); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px;
   }
-  code.inline { background: var(--chip); padding: 2px 6px; border-radius: 6px; font-size: .82rem; }
+  code.inline { background: var(--chip); padding: 2px 6px; border-radius: 6px; font-size: .85rem; font-family: monospace; }
+
+  /* RAG Agent UI */
+  .agent-input-container {
+    display: flex; gap: 10px; margin-bottom: 20px;
+  }
+  .agent-input-container input {
+    flex: 1; font-size: 1rem; padding: 14px 18px; border-radius: 12px;
+  }
+  .agent-input-container button {
+    padding: 0 28px; border-radius: 12px; font-size: 1rem;
+  }
+  .agent-suggested {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 20px;
+  }
+  .suggested-tag {
+    font-size: .8rem; background: #f0f3f6; border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px; cursor: pointer; color: var(--muted);
+    transition: all 0.2s;
+  }
+  .suggested-tag:hover { background: var(--chip); color: var(--brand); border-color: var(--brand-2); }
+  
+  .agent-chat-window {
+    border: 1px solid var(--line); border-radius: 14px; background: #fff;
+    min-height: 250px; max-height: 600px; overflow-y: auto; padding: 20px; margin-bottom: 18px;
+  }
+  .agent-message {
+    margin-bottom: 20px; max-width: 90%;
+  }
+  .agent-message.user {
+    margin-left: auto; text-align: right;
+  }
+  .agent-bubble {
+    display: inline-block; padding: 14px 18px; border-radius: 14px;
+    font-size: .95rem; text-align: left; line-height: 1.5;
+  }
+  .agent-message.user .agent-bubble {
+    background: var(--brand); color: #fff; border-bottom-right-radius: 2px;
+  }
+  .agent-message.system .agent-bubble {
+    background: #f0f5f5; color: var(--ink); border-bottom-left-radius: 2px;
+    border: 1px solid #d0e6e6; width: 100%;
+  }
+  .retrieved-chunk {
+    background: #f9fbfb; border: 1px dashed var(--brand-2); border-radius: 10px;
+    padding: 14px; margin-top: 12px; font-size: .88rem;
+  }
+  .chunk-title {
+    font-weight: bold; color: var(--brand); border-bottom: 1px solid var(--line);
+    padding-bottom: 4px; margin-bottom: 8px; display: flex; justify-content: space-between;
+  }
+  .chunk-source { font-size: .75rem; color: var(--muted); font-weight: normal; }
+  .agent-verdict {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    border-radius: 6px; font-size: .8rem; font-weight: bold; margin-top: 8px;
+  }
+  .verdict-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+  .verdict-warning { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+  .verdict-danger { background: var(--error-bg); color: var(--error); border: 1px solid var(--error-border); }
+
+  /* Evidence Map Grid */
+  .map-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;
+  }
+  .map-item {
+    border: 1px solid var(--line); border-radius: 10px; padding: 16px; background: #fafbfc;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .map-item:hover { border-color: var(--brand-2); background: #fff; box-shadow: 0 4px 12px rgba(13,107,107,.05); }
+  .map-item h4 { margin: 0 0 6px; font-size: .92rem; color: var(--brand); }
+  .map-item p { margin: 0; font-size: .8rem; color: var(--muted); }
+
+  /* Details Panel modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15,37,64,.6);
+    display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px;
+  }
+  .modal-box {
+    background: #fff; border-radius: 16px; width: 100%; max-width: 750px;
+    max-height: 90vh; overflow-y: auto; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    position: relative; animation: modalSlide 0.25s ease-out;
+  }
+  @keyframes modalSlide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-close {
+    position: absolute; top: 18px; right: 18px; border: 0; background: transparent;
+    font-size: 1.5rem; cursor: pointer; color: var(--muted);
+  }
+  .modal-close:hover { color: var(--brand); }
+  .modal-source-list {
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line);
+  }
 </style>
 </head>
 <body>
+
 <header>
-  <h1>🩺 CBME Assessment Prompt Builder</h1>
-  <p>Turn competency-based medical education guidelines into a fully cited, LLM-ready assessment prompt for GME.</p>
+  <h1>🩺 CBME Assessment Prompt Builder &amp; RAG Agent</h1>
+  <p>Local RAG Agent &amp; JSON Prompt Synthesizer for Graduate Medical Education (GME) Competency Assessments</p>
 </header>
 
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('builder')">🔧 Prompt Builder</button>
+  <button class="tab-btn" onclick="switchTab('agent')">🤖 RAG Query Agent</button>
+  <button class="tab-btn" onclick="switchTab('map')">📚 Evidence Map Explorer</button>
+</div>
+
 <main>
-  <div class="card">
-    <h2>1 · Framework &amp; Domain</h2>
-    <label>Framework</label>
-    <select id="framework"></select>
-    <div class="cite-note" id="frameworkCite"></div>
-    <label>Competency domain</label>
-    <select id="domain"></select>
-    <label>Guidelines fetched for this domain</label>
-    <ul class="guides" id="guides"></ul>
-    <div class="src-line" id="domainSrc"></div>
-  </div>
-
-  <div class="card">
-    <h2>2 · Input Type (Evidence Source)</h2>
-    <label>What are you asking the LLM to assess?</label>
-    <div class="chips" id="inputTypes"></div>
-    <div class="method" id="inputMethod"></div>
-    <div class="src-line" id="inputSrc"></div>
-    <div id="otherWrap" style="display:none">
-      <label>Describe the "other" input</label>
-      <input id="otherInput" placeholder="e.g. OSCE checklist, direct observation notes" />
+  <!-- TAB 1: PROMPT BUILDER -->
+  <div id="tab-builder" class="tab-content active">
+    <div class="card">
+      <h2>1 · Framework &amp; Domain</h2>
+      <label>Framework</label>
+      <select id="framework"></select>
+      <div class="cite-note" id="frameworkCite"></div>
+      <label>Competency domain</label>
+      <select id="domain"></select>
+      <label>Guidelines fetched for this domain</label>
+      <ul class="guides" id="guides"></ul>
+      <div class="src-line" id="domainSrc"></div>
     </div>
-    <label>Learner level (optional)</label>
-    <input id="level" placeholder="e.g. PGY-2 Internal Medicine resident" />
-  </div>
 
-  <div class="card">
-    <h2>3 · Rating Rubric</h2>
-    <p id="rubricName" style="font-size:.9rem;margin:0;font-weight:600;"></p>
-    <ol class="rubric-scale" id="rubricScale"></ol>
-    <div class="src-line" id="rubricSrc"></div>
-  </div>
-
-  <div class="card">
-    <h2>4 · Generate Cited JSON Prompt</h2>
-    <div class="row">
-      <button class="primary" id="gen">Generate</button>
-      <button class="ghost" id="copy">Copy</button>
-      <button class="ghost" id="download">Download JSON</button>
+    <div class="card">
+      <h2>2 · Input Type (Evidence Source)</h2>
+      <label>What are you asking the LLM to assess?</label>
+      <div class="chips" id="inputTypes"></div>
+      <div class="method" id="inputMethod"></div>
+      <div class="src-line" id="inputSrc"></div>
+      <div id="otherWrap" style="display:none">
+        <label>Describe the "other" input</label>
+        <input id="otherInput" placeholder="e.g. OSCE checklist, direct observation notes" />
+      </div>
+      <label>Learner level (optional)</label>
+      <input id="level" placeholder="e.g. PGY-2 Internal Medicine resident" />
     </div>
-    <pre id="out">{ }</pre>
+
+    <div class="card">
+      <h2>3 · Rating Rubric</h2>
+      <p id="rubricName" style="font-size:.9rem;margin:0;font-weight:600;"></p>
+      <ol class="rubric-scale" id="rubricScale"></ol>
+      <div class="src-line" id="rubricSrc"></div>
+    </div>
+
+    <div class="card">
+      <h2>4 · Generate Cited JSON Prompt</h2>
+      <div class="row">
+        <button class="primary" id="gen">Generate</button>
+        <button class="ghost" id="copy">Copy</button>
+        <button class="ghost" id="download">Download JSON</button>
+      </div>
+      <pre id="out">{ }</pre>
+    </div>
   </div>
 
+  <!-- TAB 2: RAG QUERY AGENT -->
+  <div id="tab-agent" class="tab-content">
+    <div class="card">
+      <h2>🤖 CBME Assessment RAG Agent</h2>
+      <p style="font-size:.9rem;color:var(--muted);margin-top:0;margin-bottom:14px;">
+        Query our source-linked clinical assessment library. Search for explicit assessment tools, design guidelines, gaps, or critical limitations.
+      </p>
+      
+      <div class="agent-suggested">
+        <span class="suggested-tag" onclick="useSuggestedQuery('how to assess interprofessional collaboration')">🔍 interprofessional collaboration</span>
+        <span class="suggested-tag" onclick="useSuggestedQuery('mini-CEX limitations and rater bias')">🔍 mini-CEX limitations</span>
+        <span class="suggested-tag" onclick="useSuggestedQuery('how to assess systems-based practice')">🔍 systems-based practice tools</span>
+        <span class="suggested-tag" onclick="useSuggestedQuery('what is the Ottawa O-SCORE')">🔍 Ottawa O-SCORE</span>
+        <span class="suggested-tag" onclick="useSuggestedQuery('how to assess Health Advocate')">🔍 Health Advocate gaps</span>
+        <span class="suggested-tag" onclick="useSuggestedQuery('Fresno test vs Berlin EBM')">🔍 Fresno vs Berlin (Scholar)</span>
+        <span class="suggested-tag" onclick="useSuggestedQuery('SCT script concordance test limitations')">🔍 Script Concordance (SCT)</span>
+      </div>
+
+      <div class="agent-input-container">
+        <input type="text" id="agentQuery" placeholder="Ask e.g. 'How do I assess professionalism safely?' or 'What are DOPS limitations?'" onkeypress="handleQueryEnter(event)" />
+        <button class="primary" id="agentSubmit" onclick="runQuery()">Ask Agent</button>
+      </div>
+
+      <div class="agent-chat-window" id="agentChat">
+        <div class="agent-message system">
+          <div class="agent-bubble">
+            <strong>System:</strong> Welcome! I am your local CBME RAG Agent. I parse <code>guidelines.json</code> and our master reference list to retrieve evidence, analyze tool implementation, and surface critical shortcomings reported in medical education research.
+            <br/><br/>
+            Type a query or select a suggested topic above to run local vector-like semantic matching.
+          </div>
+        </div>
+      </div>
+      
+      <div class="row" style="margin-top:10px;">
+        <button class="ghost" onclick="clearChat()">Clear Conversations</button>
+        <button class="ghost" id="downloadEvidence" onclick="downloadEvidenceReport()" style="display:none;">Export Analysis Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: EVIDENCE MAP EXPLORER -->
+  <div id="tab-map" class="tab-content">
+    <div class="card">
+      <h2>📚 CBME Competency Evidence Map</h2>
+      <p style="font-size:.9rem;color:var(--muted);margin-top:0;">
+        Explore all structured clinical assessment summaries, validity notes, and reported shortcomings compiled from peer-reviewed lit. Click any card to expand comprehensive research profiles.
+      </p>
+
+      <h3 style="color:var(--brand);margin-top:24px;border-left:4px solid var(--brand);padding-left:10px;">ACGME Core Competency Evidence</h3>
+      <div class="map-grid" id="acgmeMap"></div>
+
+      <h3 style="color:var(--brand);margin-top:32px;border-left:4px solid var(--brand);padding-left:10px;">CanMEDS Intrinsic Role Evidence</h3>
+      <div class="map-grid" id="canmedsMap"></div>
+    </div>
+  </div>
+
+  <!-- REFERENCES (Shared across all tabs) -->
   <div class="card">
     <h2>References</h2>
     <div class="disclaimer" id="disclaimer"></div>
@@ -138,20 +331,60 @@
 
   <div class="card">
     <h2>Cite this tool</h2>
-    <p style="font-size:.88rem;margin:0 0 6px;">If you use this builder in scholarly work, please cite it as:</p>
+    <p style="font-size:.88rem;margin:0 0 6px;">If you use this builder or RAG agent in scholarly work, please cite it as:</p>
     <p><code class="inline" id="citeTool"></code></p>
   </div>
 </main>
 
-<footer>Built for Graduate Medical Education · Frameworks and rubric are curated summaries of primary sources, each linked in the References section.</footer>
+<!-- Details Modal -->
+<div class="modal-overlay" id="detailsModal" onclick="closeModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal(null)">&times;</button>
+    <h2 id="modalTitle" style="border-bottom: 2px solid var(--brand); padding-bottom: 12px; margin-bottom: 20px;">Competency Details</h2>
+    
+    <div id="modalDescription" style="font-size:1rem; color:var(--muted); margin-bottom: 18px; font-style:italic;"></div>
+    
+    <div class="card" style="background:#f4f7fb; border:1px solid var(--line); margin-bottom:16px; padding:16px;">
+      <h3 style="margin-top:0; color:var(--brand);">Identified Assessment Tools</h3>
+      <div id="modalTools"></div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <strong style="color:var(--ink);">Design &amp; Implementation Details:</strong>
+      <p id="modalDesign" style="margin-top:6px; font-size:.92rem;"></p>
+    </div>
+
+    <div style="margin-bottom:16px; background:var(--success-bg); border-left:4px solid var(--success); padding:10px 14px; border-radius:0 8px 8px 0;">
+      <strong style="color:var(--success);">Reported Outcomes &amp; Strengths:</strong>
+      <p id="modalEffect" style="margin-top:6px; font-size:.92rem; margin-bottom:0;"></p>
+    </div>
+
+    <div style="margin-bottom:16px; background:var(--error-bg); border-left:4px solid var(--error); padding:10px 14px; border-radius:0 8px 8px 0;">
+      <strong style="color:var(--error);">Reported Limitations &amp; Shortcomings:</strong>
+      <p id="modalLimit" style="margin-top:6px; font-size:.92rem; margin-bottom:0;"></p>
+    </div>
+
+    <div style="margin-bottom:16px; background:var(--warning-bg); border-left:4px solid var(--warning); padding:10px 14px; border-radius:0 8px 8px 0;">
+      <strong style="color:var(--warning);">Assessment Gaps &amp; Future Directions:</strong>
+      <p id="modalGaps" style="margin-top:6px; font-size:.92rem; margin-bottom:0;"></p>
+    </div>
+
+    <div class="modal-source-list">
+      <strong style="font-size:.85rem; color:var(--muted);">Mapped Reference Sources:</strong>
+      <ul id="modalSources" style="font-size:.85rem; padding-left:18px; margin-top:6px; color:var(--muted);"></ul>
+    </div>
+  </div>
+</div>
+
+<footer>Built for Graduate Medical Education · Powered by Local Semantic Retrieval (RAG) · Frameworks and rubrics are linked to peer-reviewed sources.</footer>
 
 <script>
-let DATA = null, selectedInput = "transcript", REFNUM = {};
+let DATA = null, selectedInput = "transcript", REFNUM = {}, lastAgentReport = "";
 
 async function boot() {
   DATA = await (await fetch("./guidelines.json")).json();
 
-  // Assign a stable citation number to each source key.
+  // Stable citation numbers
   Object.keys(DATA.citations).forEach((k, i) => { REFNUM[k] = i + 1; });
 
   const fw = document.getElementById("framework");
@@ -167,6 +400,8 @@ async function boot() {
 
   renderRubric();
   renderReferences();
+  renderEvidenceMap();
+  
   document.getElementById("disclaimer").textContent = DATA.meta.disclaimer;
   document.getElementById("citeTool").textContent = DATA.meta.how_to_cite_this_tool;
 
@@ -174,7 +409,18 @@ async function boot() {
   showInputMeta();
 }
 
-/* Renders superscript citation badges like ¹ ² linking to the References list. */
+function switchTab(tabId) {
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+  
+  const selectedBtn = Array.from(document.querySelectorAll(".tab-btn")).find(btn => btn.textContent.toLowerCase().includes(tabId));
+  if (selectedBtn) selectedBtn.classList.add("active");
+  
+  const contentEl = document.getElementById("tab-" + tabId);
+  if (contentEl) contentEl.classList.add("active");
+}
+
+/* Citations UI */
 function refBadges(keys) {
   if (!keys || !keys.length) return "";
   return '<sup class="ref">' + keys.map(k =>
@@ -245,12 +491,360 @@ function renderReferences() {
   document.getElementById("refList").innerHTML = Object.keys(DATA.citations).map(k => {
     const c = DATA.citations[k];
     const link = c.url ? ` <a href="${c.url}" target="_blank" rel="noopener">${c.url}</a>` : "";
-    return `<li id="ref-${REFNUM[k]}">${c.authors} (${c.year}). <em>${c.title}.</em> ${c.source}.` +
+    return `<li id="ref-${REFNUM[k]}"><strong>[${REFNUM[k]}]</strong> ${c.authors} (${c.year}). <em>${c.title}.</em> ${c.source}.` +
            (c.doi ? ` doi:${c.doi}.` : "") + link + `</li>`;
   }).join("");
 }
 
-/* Full formatted citation objects for every source key used in this prompt. */
+function renderEvidenceMap() {
+  const acgmeMap = document.getElementById("acgmeMap");
+  const canmedsMap = document.getElementById("canmedsMap");
+  
+  acgmeMap.innerHTML = "";
+  canmedsMap.innerHTML = "";
+  
+  // Render ACGME Core
+  Object.entries(DATA.frameworks.ACGME.domains).forEach(([key, value]) => {
+    acgmeMap.appendChild(createMapCard("ACGME", key, value));
+  });
+  
+  // Render CanMEDS Roles
+  Object.entries(DATA.frameworks.CanMEDS.domains).forEach(([key, value]) => {
+    canmedsMap.appendChild(createMapCard("CanMEDS", key, value));
+  });
+}
+
+function createMapCard(fw, dKey, dValue) {
+  const card = document.createElement("div");
+  card.className = "map-item";
+  card.onclick = () => showDetails(fw, dKey);
+  
+  let toolCount = dValue.evidence && dValue.evidence.tools ? dValue.evidence.tools.length : 0;
+  let statusText = toolCount > 0 ? `${toolCount} assessed tools compiled` : "No validated direct tools";
+  if (dKey === "health_advocate") statusText = "⚠️ INSUFFICIENT EVIDENCE";
+  
+  card.innerHTML = `
+    <h4>${dValue.name}</h4>
+    <p>${statusText}</p>
+    <p style="font-size:0.75rem; margin-top:6px; color:var(--brand-2); font-weight:600;">Explore Full Research Profile &rarr;</p>
+  `;
+  return card;
+}
+
+function showDetails(fw, dKey) {
+  const d = DATA.frameworks[fw].domains[dKey];
+  document.getElementById("modalTitle").innerHTML = `${d.name} <span style="font-size:.85rem;color:var(--muted);font-weight:normal;">(${fw} framework)</span>`;
+  document.getElementById("modalDescription").textContent = d.evidence ? d.evidence.description : "No description compiled.";
+  
+  let toolsHTML = "";
+  if (d.evidence && d.evidence.tools && d.evidence.tools.length > 0) {
+    d.evidence.tools.forEach(t => {
+      toolsHTML += `
+        <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--line);">
+          <strong>${t.name}</strong> <span class="agent-verdict verdict-success" style="font-size:0.7rem; padding:2px 6px;">${t.type}</span>
+          <div style="font-size:0.8rem; color:var(--muted); margin-top:4px;">Context: ${t.context} | Target: ${t.target}</div>
+          <div style="font-size:0.75rem; color:var(--brand-2); margin-top:2px;">Sources: ${t.sources.map(s => `[${REFNUM[s]}]`).join(", ")}</div>
+        </div>
+      `;
+    });
+  } else {
+    toolsHTML = `<div class="agent-verdict verdict-danger" style="margin:0;">⚠️ INSUFFICIENT PUBLISHED EVIDENCE — No robust validated tools.</div>`;
+  }
+  document.getElementById("modalTools").innerHTML = toolsHTML;
+  
+  document.getElementById("modalDesign").textContent = d.evidence ? d.evidence.design : "N/A";
+  document.getElementById("modalEffect").textContent = d.evidence ? d.evidence.effectiveness : "N/A";
+  document.getElementById("modalLimit").textContent = d.evidence ? d.evidence.limitations : "N/A";
+  document.getElementById("modalGaps").textContent = d.evidence ? d.evidence.gaps : "N/A";
+  
+  let sourcesHTML = "";
+  d.sources.forEach(s => {
+    sourcesHTML += `<li><strong>[${REFNUM[s]}]</strong> ${citeText(s)}</li>`;
+  });
+  document.getElementById("modalSources").innerHTML = sourcesHTML;
+  
+  document.getElementById("detailsModal").style.display = "flex";
+}
+
+function closeModal(event) {
+  if (!event || event.target === document.getElementById("detailsModal") || event.target.className === "modal-close") {
+    document.getElementById("detailsModal").style.display = "none";
+  }
+}
+
+/* LOCAL RAG QUERY AGENT ENGINE */
+function handleQueryEnter(event) {
+  if (event.key === "Enter") {
+    runQuery();
+  }
+}
+
+function useSuggestedQuery(queryText) {
+  document.getElementById("agentQuery").value = queryText;
+  runQuery();
+}
+
+function clearChat() {
+  document.getElementById("agentChat").innerHTML = `
+    <div class="agent-message system">
+      <div class="agent-bubble">
+        <strong>System:</strong> Conversations cleared. Ask me about any competency domain, specific tools, or reported shortcomings.
+      </div>
+    </div>
+  `;
+  document.getElementById("downloadEvidence").style.display = "none";
+  lastAgentReport = "";
+}
+
+function runQuery() {
+  const queryInput = document.getElementById("agentQuery");
+  const query = queryInput.value.trim();
+  if (!query) return;
+  
+  queryInput.value = "";
+  
+  // Render user message
+  appendMessage("user", query);
+  
+  // Process with local semantic retriever
+  const response = performLocalRAG(query);
+  
+  // Render system message
+  setTimeout(() => {
+    appendMessage("system", response);
+    document.getElementById("downloadEvidence").style.display = "inline-block";
+  }, 350);
+}
+
+function appendMessage(sender, text) {
+  const chatWindow = document.getElementById("agentChat");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `agent-message ${sender}`;
+  
+  msgDiv.innerHTML = `
+    <div class="agent-bubble">
+      ${sender === "system" ? `<strong>RAG Agent Response:</strong><br/><br/>` : ""}
+      ${text}
+    </div>
+  `;
+  
+  chatWindow.appendChild(msgDiv);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+/* Light BM25/TF-IDF Inspired Keyword Matching and Query Router */
+function performLocalRAG(query) {
+  const qLower = query.toLowerCase();
+  
+  // Collect all potential chunks to index
+  const chunks = [];
+  
+  Object.entries(DATA.frameworks).forEach(([fwKey, fwValue]) => {
+    Object.entries(fwValue.domains).forEach(([dKey, dValue]) => {
+      if (dValue.evidence) {
+        chunks.push({
+          id: `${fwKey}_${dKey}_desc`,
+          fw: fwKey,
+          domain: dValue.name,
+          title: "Domain Overview & Guidelines",
+          text: dValue.evidence.description + " " + dValue.guidelines.join(" "),
+          sources: dValue.sources,
+          type: "overview",
+          raw: dValue.evidence
+        });
+        
+        if (dValue.evidence.tools && dValue.evidence.tools.length > 0) {
+          dValue.evidence.tools.forEach(tool => {
+            chunks.push({
+              id: `${fwKey}_${dKey}_tool_${tool.name.replace(/\s+/g,"_")}`,
+              fw: fwKey,
+              domain: dValue.name,
+              title: `Tool Profile: ${tool.name}`,
+              text: `${tool.name} is a ${tool.type} assessed in ${tool.context} targeted at ${tool.target}.`,
+              sources: tool.sources,
+              type: "tool",
+              raw: dValue.evidence
+            });
+          });
+        }
+        
+        chunks.push({
+          id: `${fwKey}_${dKey}_limit`,
+          fw: fwKey,
+          domain: dValue.name,
+          title: "Reported Limitations & Validity शॉर्टcomings",
+          text: dValue.evidence.limitations,
+          sources: dValue.sources,
+          type: "limitations",
+          raw: dValue.evidence
+        });
+        
+        chunks.push({
+          id: `${fwKey}_${dKey}_design`,
+          fw: fwKey,
+          domain: dValue.name,
+          title: "Design & Scoring Methodology",
+          text: dValue.evidence.design + " " + dValue.evidence.effectiveness,
+          sources: dValue.sources,
+          type: "design",
+          raw: dValue.evidence
+        });
+
+        chunks.push({
+          id: `${fwKey}_${dKey}_gaps`,
+          fw: fwKey,
+          domain: dValue.name,
+          title: "Assessment Gaps & Opportunities",
+          text: dValue.evidence.gaps,
+          sources: dValue.sources,
+          type: "gaps",
+          raw: dValue.evidence
+        });
+      }
+    });
+  });
+
+  // Calculate scores based on term occurrences
+  const stopwords = ["a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "could", "did", "do", "does", "doing", "down", "during", "each", "few", "for", "from", "further", "had", "has", "have", "having", "he", "her", "here", "hers", "herself", "him", "himself", "his", "how", "i", "if", "in", "into", "is", "it", "its", "itself", "me", "more", "most", "my", "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "she", "should", "so", "some", "such", "than", "that", "the", "their", "theirs", "them", "themselves", "then", "there", "theirs", "these", "they", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "were", "what", "when", "where", "which", "while", "who", "whom", "why", "with", "would", "you", "your", "yours", "yourself", "yourselves"];
+  const queryTerms = qLower.split(/[\s,.\?\/#!$%\^&\*;:{}=\-_`~()]+/).filter(t => t.length > 1 && !stopwords.includes(t));
+  
+  if (queryTerms.length === 0) {
+    return "Your query did not contain enough specific terms. Please try using keywords like 'DOPS', 'P-MEX', 'O-SCORE', 'limitation', 'collaboration', or 'systems'.";
+  }
+
+  // Score each chunk
+  chunks.forEach(chunk => {
+    let score = 0;
+    const textLower = (chunk.domain + " " + chunk.title + " " + chunk.text).toLowerCase();
+    
+    queryTerms.forEach(term => {
+      // Direct exact match weighting
+      if (textLower.includes(term)) {
+        score += 2;
+        // Boost score if keyword appears in title or domain
+        if (chunk.title.toLowerCase().includes(term)) score += 3;
+        if (chunk.domain.toLowerCase().includes(term)) score += 3;
+        
+        // Term frequency multiplier
+        const occurrences = textLower.split(term).length - 1;
+        score += occurrences * 0.5;
+      }
+    });
+    
+    chunk.score = score;
+  });
+
+  // Sort chunks and get the top 2
+  const matchedChunks = chunks.filter(c => c.score > 0).sort((a, b) => b.score - a.score);
+  
+  if (matchedChunks.length === 0) {
+    return `<strong>Search complete: 0 matching sources found.</strong><br/><br/>
+            I scanned all mapped framework domains and references, but couldn't find matches for "${query}". 
+            <br/><br/>
+            <em>Suggested search topics:</em> <strong>interprofessional</strong>, <strong>DOPS limitations</strong>, <strong>Script Concordance</strong>, <strong>professionalism</strong>, <strong>Health Advocate gaps</strong>.`;
+  }
+
+  const bestChunk = matchedChunks[0];
+  const secChunk = matchedChunks.length > 1 ? matchedChunks[1] : null;
+
+  // Generate automated synthesis response
+  let answerHTML = "";
+  
+  // Context-specific Verdict mapping
+  let verdictClass = "verdict-success";
+  let verdictLabel = "WELL-TOOL COMPLETED EVIDENCE";
+  
+  if (qLower.includes("limit") || qLower.includes("shortcoming") || qLower.includes("bias") || qLower.includes("unreliable") || qLower.includes("gaming") || qLower.includes("fault") || qLower.includes("flaw")) {
+    verdictClass = "verdict-danger";
+    verdictLabel = "CRITICAL Shortcomings MAPPED";
+  } else if (bestChunk.domain.includes("Advocate") || bestChunk.domain.includes("Leader") || bestChunk.text.includes("insufficient") || bestChunk.text.includes("orphan")) {
+    verdictClass = "verdict-warning";
+    verdictLabel = "INSUFFICIENT WORKPLACE METRICS";
+  }
+
+  answerHTML += `
+    <div class="agent-verdict ${verdictClass}" style="margin-bottom:12px;">${verdictLabel}</div>
+    <div style="font-size:1rem; line-height:1.6; margin-bottom:14px;">
+      Here is my analysis of your query regarding <strong>"${query}"</strong>. Based on <strong>${bestChunk.domain}</strong> in our compiled GME evidence database:
+    </div>
+  `;
+
+  // Dynamic Synthesis Statement
+  if (bestChunk.type === "limitations" || qLower.includes("limit") || qLower.includes("shortcoming") || qLower.includes("error") || qLower.includes("bias")) {
+    answerHTML += `
+      <p>Research literature notes several critical limitations for assessments in <strong>${bestChunk.domain}</strong>. Primarily: 
+      <em>"${bestChunk.text}"</em></p>
+      <p>These findings indicate that educators must guard against <strong>rater variability</strong>, case specificity, and the risk of 'gaming' where learners select easier encounters or less critical assessors.</p>
+    `;
+  } else if (bestChunk.type === "gaps" || qLower.includes("gap") || qLower.includes("future") || qLower.includes("missing")) {
+    answerHTML += `
+      <p>The primary educational gap identified in <strong>${bestChunk.domain}</strong> is: 
+      <strong>"${bestChunk.text}"</strong></p>
+      <p>To address these constraints, designers must build more realistic team-based and clinical simulations that allow observation of authentic behavior.</p>
+    `;
+  } else {
+    answerHTML += `
+      <p>Assessments in this domain primarily leverage structured tools like: 
+      <strong>${bestChunk.raw.tools ? bestChunk.raw.tools.map(t => t.name).join(", ") : "indirect multi-source feedback arrays"}</strong>.</p>
+      <p>The core design philosophy is: <em>"${bestChunk.raw.design}"</em>, which targets <strong>${bestChunk.raw.effectiveness}</strong>.</p>
+    `;
+  }
+
+  // Master References for bestChunk
+  const citationsHTML = bestChunk.sources.map(s => `[${REFNUM[s]}]`).join(", ");
+  answerHTML += `
+    <p style="font-size:0.85rem; color:var(--muted); margin-top:14px;">
+      <strong>Relevant References Mapped:</strong> ${citationsHTML} (View the bottom of this page for full bibliographies).
+    </p>
+  `;
+
+  // Render Retrieved Chunks
+  answerHTML += `
+    <div class="retrieved-chunk">
+      <div class="chunk-title">
+        <span>📚 Chunk retrieved (Score: ${bestChunk.score.toFixed(1)})</span>
+        <span class="chunk-source">${bestChunk.fw} &middot; ${bestChunk.domain}</span>
+      </div>
+      <strong>${bestChunk.title}:</strong> ${bestChunk.text}
+    </div>
+  `;
+
+  if (secChunk) {
+    answerHTML += `
+      <div class="retrieved-chunk" style="opacity:0.8;">
+        <div class="chunk-title">
+          <span>📚 Supporting Chunk (Score: ${secChunk.score.toFixed(1)})</span>
+          <span class="chunk-source">${secChunk.fw} &middot; ${secChunk.domain}</span>
+        </div>
+        <strong>${secChunk.title}:</strong> ${secChunk.text}
+      </div>
+    `;
+  }
+
+  // Preserve report for downloading
+  lastAgentReport = `
+RAG AGENT REPORT
+================================================================================
+Query: "${query}"
+Domain analyzed: ${bestChunk.domain}
+Primary Source Text: ${bestChunk.title} -> ${bestChunk.text}
+Supporting Source Text: ${secChunk ? `${secChunk.title} -> ${secChunk.text}` : "N/A"}
+References Mapped: ${citationsHTML}
+================================================================================
+  `;
+
+  return answerHTML;
+}
+
+function downloadEvidenceReport() {
+  if (!lastAgentReport) return;
+  const blob = new Blob([lastAgentReport], {type: "text/plain"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cbme_agent_evidence_report.txt";
+  a.click();
+}
+
 function citationsFor(keys) {
   const uniq = [...new Set(keys)].filter(Boolean);
   return uniq.map(k => {
